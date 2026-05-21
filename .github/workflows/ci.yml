@@ -454,7 +454,8 @@ jobs:
 
       # ---------- Upload JUnit test results to Codecov ----------
       - name: Upload test results (JUnit)
-        if: ${{ !cancelled() }}
+        # Dependabot PRs cannot access regular repository secrets, so Codecov uploads fail with an empty token.
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
         uses: codecov/test-results-action@v1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -464,7 +465,8 @@ jobs:
 
       # ---------- Upload coverage report to Codecov ----------
       - name: Upload coverage (lcov)
-        if: ${{ !cancelled() }}
+        # Dependabot PRs cannot access regular repository secrets, so Codecov uploads fail with an empty token.
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
         uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
