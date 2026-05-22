@@ -4,9 +4,12 @@ use crate::storage::filesystem::storage_config::StorageConfig;
 use crate::storage::table::iceberg::parquet_utils;
 
 use std::path::Path;
+#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
 use std::sync::Arc;
 
-use iceberg::io::{FileIO, FileIOBuilder};
+use iceberg::io::FileIO;
+#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
+use iceberg::io::FileIOBuilder;
 use iceberg::spec::DataFile;
 use iceberg::spec::TableMetadata as IcebergTableMetadata;
 use iceberg::table::Table as IcebergTable;
@@ -14,6 +17,7 @@ use iceberg::writer::file_writer::location_generator::{
     DefaultLocationGenerator, LocationGenerator,
 };
 use iceberg::{Error as IcebergError, Result as IcebergResult};
+#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
 use iceberg_storage_opendal::OpenDalStorageFactory;
 
 /// Get a unique filepath for iceberg table data filepath.
