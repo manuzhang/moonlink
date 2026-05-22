@@ -208,8 +208,8 @@ fn convert_schema_type(
                     }
                 }
 
-                if has_null && non_null_schema.is_some() {
-                    let (data_type, _) = convert_schema_type(field_id, non_null_schema.unwrap())?;
+                if let (true, Some(non_null_schema)) = (has_null, non_null_schema) {
+                    let (data_type, _) = convert_schema_type(field_id, non_null_schema)?;
                     Ok((data_type, true))
                 } else {
                     Err(AvroToArrowSchemaError::UnsupportedSchemaType(

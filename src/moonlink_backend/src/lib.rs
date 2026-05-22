@@ -466,6 +466,8 @@ fn validate_not_empty(field: &str, name: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(deprecated)]
+
     use super::*;
 
     use crate::parquet_utils::deserialize_parquet_metadata;

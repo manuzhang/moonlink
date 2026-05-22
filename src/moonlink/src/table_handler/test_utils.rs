@@ -26,8 +26,7 @@ use crate::{
 
 use arrow_array::{Int32Array, RecordBatch, StringArray};
 use futures::StreamExt;
-use iceberg::io::FileIOBuilder;
-use iceberg::io::FileRead;
+use iceberg::io::FileIO;
 use more_asserts as ma;
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use parquet::arrow::AsyncArrowWriter;
@@ -622,7 +621,7 @@ pub async fn check_read_snapshot(
 
 /// Test util function to load one arrow batch from the given local parquet file.
 pub(crate) async fn load_one_arrow_batch(filepath: &str) -> RecordBatch {
-    let file_io = FileIOBuilder::new_fs_io().build().unwrap();
+    let file_io = FileIO::new_with_fs();
     let input_file = file_io.new_input(filepath).unwrap();
     let input_file_metadata = input_file.metadata().await.unwrap();
     let reader = input_file.reader().await.unwrap();

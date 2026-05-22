@@ -1,6 +1,7 @@
 use clap::Parser;
 use datafusion::prelude::SessionContext;
 use datafusion_cli::exec::exec_from_repl;
+use datafusion_cli::object_storage::instrumented::InstrumentedObjectStoreRegistry;
 use datafusion_cli::print_format::PrintFormat;
 use datafusion_cli::print_options::{MaxRows, PrintOptions};
 use moonlink_datafusion::MooncakeCatalogProvider;
@@ -30,6 +31,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
         quiet: false,
         maxrows: MaxRows::Limited(40),
         color: true,
+        instrumented_registry: Arc::new(InstrumentedObjectStoreRegistry::new()),
     };
     exec_from_repl(&ctx, &mut print_options).await?;
     Ok(())

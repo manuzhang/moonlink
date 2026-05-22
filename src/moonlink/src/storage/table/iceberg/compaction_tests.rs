@@ -39,7 +39,7 @@ use crate::storage::MooncakeTable;
 use crate::{FileSystemAccessor, TableEvent};
 
 use arrow_array::{Int32Array, RecordBatch, StringArray};
-use iceberg::io::FileIOBuilder;
+use iceberg::io::FileIO;
 use std::sync::Arc;
 use tokio::sync::mpsc::Receiver;
 
@@ -115,7 +115,7 @@ async fn get_arrow_batches_with_row_idx(
     data_file: &str,
     row_indices: Vec<usize>,
 ) -> Vec<RecordBatch> {
-    let file_io = FileIOBuilder::new_fs_io().build().unwrap();
+    let file_io = FileIO::new_with_fs();
     let loaded_record_batch = load_arrow_batch(&file_io, data_file).await.unwrap();
     row_indices
         .iter()
@@ -177,7 +177,7 @@ fn get_possible_compacted_arrow_batches(row_indices: Vec<usize>) -> Vec<RecordBa
 /// Test util function to check loaded arrow batch records are expected.
 async fn check_loaded_arrow_batches(data_file: &str, row_indices: Vec<usize>) {
     let possible_arrow_batches = get_possible_compacted_arrow_batches(row_indices);
-    let file_io = FileIOBuilder::new_fs_io().build().unwrap();
+    let file_io = FileIO::new_with_fs();
     let actual_record_batch = load_arrow_batch(&file_io, data_file).await.unwrap();
     assert!(
         possible_arrow_batches.contains(&actual_record_batch),

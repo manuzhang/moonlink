@@ -401,7 +401,6 @@ impl ReplicationConnection {
                         warn!(error = ?e, "task join error during shutdown");
                     }
                 }
-                self.replication_started = false;
             }
 
             // Finalize the source connection

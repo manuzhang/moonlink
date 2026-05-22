@@ -24,7 +24,6 @@ allow = [
 [sources]
 unknown-git = "deny"
 allow-git = [
-    "https://github.com/apache/iceberg-rust.git",
     "https://github.com/Mooncake-Labs/rust-postgres.git?rev=14c8e599f5551a8caa96ff5023685a6f537a1455",
 ]
 
@@ -33,6 +32,11 @@ allow-git = [
 ignore = [
     "RUSTSEC-2023-0071", # rsa - marvin attack
     "RUSTSEC-2024-0436", # paste - unmaintained
+    "RUSTSEC-2025-0134", # rustls-pemfile - unmaintained; pulled by object_store.
+    "RUSTSEC-2025-0141", # bincode - unmaintained; direct dependency requiring migration.
+    "RUSTSEC-2026-0098", # rustls-webpki - pulled by AWS smithy http client via rustls 0.21.
+    "RUSTSEC-2026-0099", # rustls-webpki - pulled by AWS smithy http client via rustls 0.21.
+    "RUSTSEC-2026-0104", # rustls-webpki - pulled by AWS smithy http client via rustls 0.21.
 ]
 
 # TODO(hjiang): Resolve all duplicate dependencies.

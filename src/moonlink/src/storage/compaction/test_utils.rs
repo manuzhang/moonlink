@@ -1,5 +1,5 @@
 use arrow_array::{Int32Array, RecordBatch, StringArray};
-use iceberg::io::FileIOBuilder;
+use iceberg::io::FileIO;
 use iceberg::puffin::CompressionCodec;
 use parquet::arrow::AsyncArrowWriter;
 
@@ -196,12 +196,10 @@ pub(crate) async fn dump_deletion_vector_puffin(
     ]);
     let blob = iceberg_deletion_vector.serialize(blob_properties);
     let blob_size = blob.data().len();
-    let mut puffin_writer = puffin_utils::create_puffin_writer(
-        &FileIOBuilder::new_fs_io().build().unwrap(),
-        &puffin_filepath,
-    )
-    .await
-    .unwrap();
+    let mut puffin_writer =
+        puffin_utils::create_puffin_writer(&FileIO::new_with_fs(), &puffin_filepath)
+            .await
+            .unwrap();
     puffin_writer
         .add(blob, CompressionCodec::None)
         .await
@@ -375,12 +373,10 @@ pub(crate) async fn check_compacted_single_data_files(
         .enumerate()
     {
         let expected_record_batch = get_uncompacted_arrow_batches(file_idx, cur_old_row_indices);
-        let loaded_record_batch = load_arrow_batch(
-            &FileIOBuilder::new_fs_io().build().unwrap(),
-            cur_new_data_file.0.file_path(),
-        )
-        .await
-        .unwrap();
+        let loaded_record_batch =
+            load_arrow_batch(&FileIO::new_with_fs(), cur_new_data_file.0.file_path())
+                .await
+                .unwrap();
 
         expected_record_batches.push(expected_record_batch);
         actual_record_batches.push(loaded_record_batch);
@@ -425,12 +421,10 @@ pub(crate) async fn check_data_file_compaction(
     assert_eq!(new_data_files.len(), 1);
 
     let expected_arrow_batch = get_compacted_arrow_batch(old_row_indices);
-    let loaded_arrow_batch = load_arrow_batch(
-        &FileIOBuilder::new_fs_io().build().unwrap(),
-        new_data_files[0].0.file_path(),
-    )
-    .await
-    .unwrap();
+    let loaded_arrow_batch =
+        load_arrow_batch(&FileIO::new_with_fs(), new_data_files[0].0.file_path())
+            .await
+            .unwrap();
     assert_eq!(expected_arrow_batch, loaded_arrow_batch);
 }
 
