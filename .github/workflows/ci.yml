@@ -381,7 +381,7 @@ jobs:
           docker run -d \
             --name iceberg-rest-fixture \
             -p 8181:8181 \
-            apache/iceberg-rest-fixture
+            apache/iceberg-rest-fixture:1.9.1
 
       # ─────────────── Add hostnames to /etc/hosts ──────────────────────────
       - name: Add iceberg-rest.local to /etc/hosts

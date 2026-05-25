@@ -45,7 +45,7 @@ services:
       - "9001:9001"  # Web UI
 
   iceberg-rest:
-    image: apache/iceberg-rest-fixture:latest
+    image: apache/iceberg-rest-fixture:1.9.1
     networks:
       shared_network:
         aliases:
