@@ -47,7 +47,10 @@ services:
   iceberg-rest:
     image: apache/iceberg-rest-fixture:1.9.1
     environment:
-      CATALOG_JDBC_SCHEMA__VERSION: V1
+      CATALOG_WAREHOUSE: /tmp/warehouse
+      CATALOG_URI: jdbc:sqlite:file:/tmp/iceberg_catalog.db
+      CATALOG_JDBC_USER: user
+      CATALOG_JDBC_PASSWORD: password
     networks:
       shared_network:
         aliases:

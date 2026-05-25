@@ -381,7 +381,10 @@ jobs:
           docker run -d \
             --name iceberg-rest-fixture \
             -p 8181:8181 \
-            -e CATALOG_JDBC_SCHEMA__VERSION=V1 \
+            -e CATALOG_WAREHOUSE=/tmp/warehouse \
+            -e CATALOG_URI=jdbc:sqlite:file:/tmp/iceberg_catalog.db \
+            -e CATALOG_JDBC_USER=user \
+            -e CATALOG_JDBC_PASSWORD=password \
             apache/iceberg-rest-fixture:1.9.1
 
       # ─────────────── Add hostnames to /etc/hosts ──────────────────────────
