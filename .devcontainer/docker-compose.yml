@@ -46,6 +46,8 @@ services:
 
   iceberg-rest:
     image: apache/iceberg-rest-fixture:1.9.1
+    environment:
+      CATALOG_JDBC_SCHEMA__VERSION: V1
     networks:
       shared_network:
         aliases:
