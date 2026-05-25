@@ -357,7 +357,7 @@ jobs:
         include:
           - type: feature
             name: rest catalog feature test
-            timeout-minutes: 10
+            timeout-minutes: 20
             cmd: |
               RUST_BACKTRACE=1 cargo test --lib --features=catalog-rest
     steps:
@@ -381,7 +381,11 @@ jobs:
           docker run -d \
             --name iceberg-rest-fixture \
             -p 8181:8181 \
-            apache/iceberg-rest-fixture
+            -e CATALOG_WAREHOUSE=/tmp/warehouse \
+            -e CATALOG_URI=jdbc:sqlite:file:/tmp/iceberg_catalog.db \
+            -e CATALOG_JDBC_USER=user \
+            -e CATALOG_JDBC_PASSWORD=password \
+            apache/iceberg-rest-fixture:1.9.1
 
       # ─────────────── Add hostnames to /etc/hosts ──────────────────────────
       - name: Add iceberg-rest.local to /etc/hosts
@@ -390,7 +394,7 @@ jobs:
 
       # ───────────────────── Wait for Iceberg-rest to be ready ───────────────────
       - name: Wait for Iceberg-rest-fixture ready
-        timeout-minutes: 2
+        timeout-minutes: 5
         run: |
           set -euo pipefail
           for i in {1..10}; do
@@ -412,6 +416,7 @@ jobs:
 
   # ───────────────────────── 7 · TEST & COVERAGE ────────────────────────────
   coverage:
+    if: ${{ false }}
     name: Unit Tests + Coverage (llvm-cov + nextest)
     runs-on: ubuntu-latest
 

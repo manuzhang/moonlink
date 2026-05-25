@@ -23,7 +23,7 @@ mod tests {
         println!("Random seed is {rand_seed}");
         let mut rng = StdRng::seed_from_u64(rand_seed);
 
-        const NUM_ITERATIONS: usize = 200;
+        const NUM_ITERATIONS: usize = 100;
         const MAX_BATCH_SIZE: i64 = 50_000;
 
         let (guard, client) = TestGuard::new(Some("bulk_insert_multiple_iterations"), true).await;

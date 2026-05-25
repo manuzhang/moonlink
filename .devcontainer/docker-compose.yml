@@ -45,7 +45,12 @@ services:
       - "9001:9001"  # Web UI
 
   iceberg-rest:
-    image: apache/iceberg-rest-fixture:latest
+    image: apache/iceberg-rest-fixture:1.9.1
+    environment:
+      CATALOG_WAREHOUSE: /tmp/warehouse
+      CATALOG_URI: jdbc:sqlite:file:/tmp/iceberg_catalog.db
+      CATALOG_JDBC_USER: user
+      CATALOG_JDBC_PASSWORD: password
     networks:
       shared_network:
         aliases:
