@@ -133,7 +133,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -215,7 +215,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -505,7 +505,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -540,7 +540,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -575,7 +575,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -610,7 +610,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -645,7 +645,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -680,7 +680,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
@@ -740,7 +740,7 @@ jobs:
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: chaos-dumps-${{ github.run_id }}-${{ github.job }}-${{ matrix.target || 'no-matrix' }}
           path: /tmp/chaos_test_*
