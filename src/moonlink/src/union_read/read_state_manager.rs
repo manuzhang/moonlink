@@ -146,8 +146,8 @@ impl ReadStateManager {
         }
         // After recovery, commit_lsn is restored from persisted state before the
         // replication channel receives its first update; skip the check while
-        // replication_lsn is still uninitialized (0).
-        if replication_lsn != 0 {
+        // replication_lsn is still uninitialized.
+        if replication_lsn != NO_COMMIT_LSN {
             ma::assert_le!(commit_lsn, replication_lsn);
         }
 
