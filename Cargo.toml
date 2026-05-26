@@ -44,11 +44,11 @@ deltalake = { version = "0.29", features = ["deltalake-aws", "deltalake-gcp"] }
 fastbloom = "0.16"
 futures = { version = "0.3", default-features = false }
 hashbrown = "0.17"
-iceberg = { version = "1.11.0", default-features = false, features = [
+iceberg = { version = "0.9.1", default-features = false, features = [
   "storage-fs",
 ] }
-iceberg-catalog-glue = { version = "1.11.0" }
-iceberg-catalog-rest = { version = "1.11.0" }
+iceberg-catalog-glue = { version = "0.9.1" }
+iceberg-catalog-rest = { version = "0.9.1" }
 itertools = "0.14"
 lru = "0.16"
 moka = { version = "0.12", features = ["future"] }
