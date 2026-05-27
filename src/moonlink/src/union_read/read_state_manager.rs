@@ -144,7 +144,12 @@ impl ReadStateManager {
         if snapshot_lsn != NO_SNAPSHOT_LSN && commit_lsn != NO_COMMIT_LSN {
             ma::assert_le!(snapshot_lsn, commit_lsn);
         }
-        ma::assert_le!(commit_lsn, replication_lsn);
+        // After recovery, commit_lsn is restored from persisted state before the
+        // replication channel receives its first update; skip the check while
+        // replication_lsn is still uninitialized.
+        if replication_lsn != NO_COMMIT_LSN {
+            ma::assert_le!(commit_lsn, replication_lsn);
+        }
 
         // Check snapshot readability.
         let is_snapshot_clean = Self::snapshot_is_clean(snapshot_lsn, commit_lsn);
