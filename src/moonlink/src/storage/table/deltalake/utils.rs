@@ -8,7 +8,7 @@ use url::Url;
 use crate::storage::filesystem::accessor::base_filesystem_accessor::BaseFileSystemAccess;
 use crate::storage::mooncake_table::TableMetadata as MooncakeTableMetadata;
 use crate::storage::table::deltalake::deltalake_table_config::DeltalakeTableConfig;
-use crate::storage::StorageConfig as MoonlinkStorgaeConfig;
+use crate::storage::StorageConfig as MoonlinkStorageConfig;
 use crate::CacheTrait;
 use crate::Result;
 
@@ -30,13 +30,13 @@ fn sanitize_deltalake_table_location(location: &str) -> String {
 }
 
 /// Get storage option to access deltalake table.
-fn get_storage_option(storage_config: &MoonlinkStorgaeConfig) -> HashMap<String, String> {
+fn get_storage_option(storage_config: &MoonlinkStorageConfig) -> HashMap<String, String> {
     #[allow(unused_mut)]
     let mut storage_options = HashMap::new();
 
     match storage_config {
         #[cfg(feature = "storage-s3")]
-        MoonlinkStorgaeConfig::S3 {
+        MoonlinkStorageConfig::S3 {
             access_key_id,
             secret_access_key,
             region,
