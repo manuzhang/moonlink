@@ -3,8 +3,8 @@ use crate::pg_replicate::table::{TableName, TableSchema};
 use crate::pg_replicate::ReplicationClient;
 use std::sync::Arc;
 use tokio::sync::mpsc;
-use tokio_postgres::error::SqlState;
 use tokio_postgres::connect;
+use tokio_postgres::error::SqlState;
 use tokio_postgres::types::PgLsn;
 
 #[cfg(feature = "test-tls")]
@@ -163,9 +163,7 @@ async fn drop_replication_slot(client: &tokio_postgres::Client, slot_name: &str)
         // Replication tests can race cleanup when a slot is still held by an in-flight
         // replication connection. In that case, avoid panicking in Drop cleanup.
         if e.code() == Some(&SqlState::OBJECT_IN_USE) {
-            eprintln!(
-                "Skipping drop of active replication slot '{slot_name}': {e}"
-            );
+            eprintln!("Skipping drop of active replication slot '{slot_name}': {e}");
             return;
         }
 
