@@ -4,12 +4,11 @@ use crate::storage::filesystem::storage_config::StorageConfig;
 use crate::storage::table::iceberg::parquet_utils;
 
 use std::path::Path;
-#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
 use std::sync::Arc;
 
-use iceberg::io::FileIO;
 #[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
 use iceberg::io::FileIOBuilder;
+use iceberg::io::{FileIO, StorageFactory};
 use iceberg::spec::DataFile;
 use iceberg::spec::TableMetadata as IcebergTableMetadata;
 use iceberg::table::Table as IcebergTable;
@@ -17,7 +16,6 @@ use iceberg::writer::file_writer::location_generator::{
     DefaultLocationGenerator, LocationGenerator,
 };
 use iceberg::{Error as IcebergError, Result as IcebergResult};
-#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
 use iceberg_storage_opendal::OpenDalStorageFactory;
 
 /// Get a unique filepath for iceberg table data filepath.
@@ -165,6 +163,32 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
             }
             Ok(file_io_builder.build())
         }
+    }
+}
+
+/// Create an iceberg storage factory for catalog-owned [`FileIO`] instances.
+pub(crate) fn create_storage_factory(
+    accessor_config: &AccessorConfig,
+) -> IcebergResult<Arc<dyn StorageFactory>> {
+    match &accessor_config.storage_config {
+        #[cfg(feature = "storage-fs")]
+        StorageConfig::FileSystem { .. } => Ok(Arc::new(OpenDalStorageFactory::Fs)),
+        #[cfg(feature = "storage-gcs")]
+        StorageConfig::Gcs { disable_auth, .. } => {
+            if *disable_auth {
+                Ok(Arc::new(OpenDalStorageFactory::Gcs))
+            } else {
+                Ok(Arc::new(OpenDalStorageFactory::S3 {
+                    configured_scheme: "s3".to_string(),
+                    customized_credential_load: None,
+                }))
+            }
+        }
+        #[cfg(feature = "storage-s3")]
+        StorageConfig::S3 { .. } => Ok(Arc::new(OpenDalStorageFactory::S3 {
+            configured_scheme: "s3".to_string(),
+            customized_credential_load: None,
+        })),
     }
 }
 

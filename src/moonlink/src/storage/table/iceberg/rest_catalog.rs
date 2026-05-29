@@ -46,7 +46,8 @@ impl RestCatalog {
         accessor_config: AccessorConfig,
         iceberg_schema: IcebergSchema,
     ) -> IcebergResult<Self> {
-        let builder = IcebergRestCatalogBuilder::default();
+        let storage_factory = iceberg_io_utils::create_storage_factory(&accessor_config)?;
+        let builder = IcebergRestCatalogBuilder::default().with_storage_factory(storage_factory);
         config
             .props
             .insert(REST_CATALOG_PROP_URI.to_string(), config.uri);
@@ -71,7 +72,8 @@ impl RestCatalog {
         mut config: RestCatalogConfig,
         accessor_config: AccessorConfig,
     ) -> IcebergResult<Self> {
-        let builder = IcebergRestCatalogBuilder::default();
+        let storage_factory = iceberg_io_utils::create_storage_factory(&accessor_config)?;
+        let builder = IcebergRestCatalogBuilder::default().with_storage_factory(storage_factory);
         config
             .props
             .insert(REST_CATALOG_PROP_URI.to_string(), config.uri);
