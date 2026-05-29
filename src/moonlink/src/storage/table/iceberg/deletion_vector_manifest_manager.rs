@@ -4,7 +4,6 @@ use crate::storage::table::iceberg::deletion_vector::{
 };
 use crate::storage::table::iceberg::manifest_utils;
 use crate::storage::table::iceberg::manifest_utils::ManifestEntryType;
-use crate::storage::table::iceberg::puffin_writer_proxy::DataFileProxy;
 use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
 
 use std::collections::{HashMap, HashSet};
@@ -13,10 +12,10 @@ use std::sync::Arc;
 use iceberg::io::FileIO;
 use iceberg::puffin::DELETION_VECTOR_V1;
 use iceberg::spec::{
-    DataContentType, DataFile, DataFileFormat, ManifestEntry, ManifestFile, ManifestMetadata,
-    ManifestWriter, Struct, TableMetadata,
+    DataContentType, DataFile, DataFileBuilder, DataFileFormat, ManifestEntry, ManifestFile,
+    ManifestMetadata, ManifestWriter, TableMetadata,
 };
-use iceberg::Result as IcebergResult;
+use iceberg::{Error as IcebergError, ErrorKind, Result as IcebergResult};
 
 pub(crate) struct DeletionVectorManifestManager<'a> {
     table_metadata: &'a TableMetadata,
@@ -94,7 +93,7 @@ impl<'a> DeletionVectorManifestManager<'a> {
         for (puffin_filepath, blob_metadata) in deletion_vector_blobs_to_add.iter() {
             for cur_blob_metadata in blob_metadata.iter() {
                 let (referenced_data_filepath, data_file) =
-                    get_data_file_for_deletion_vector(puffin_filepath, cur_blob_metadata);
+                    get_data_file_for_deletion_vector(puffin_filepath, cur_blob_metadata)?;
                 self.existing_deletion_vector_entries
                     .remove(&referenced_data_filepath);
                 self.init_writer_for_once()?;
@@ -129,11 +128,11 @@ impl<'a> DeletionVectorManifestManager<'a> {
     }
 }
 
-/// Util function to get `DataFileProxy` for deletion vector puffin blob.
+/// Util function to get `DataFile` for deletion vector puffin blob.
 fn get_data_file_for_deletion_vector(
     puffin_filepath: &str,
     blob_metadata: &PuffinBlobMetadataProxy,
-) -> (String /*referenced_data_filepath*/, DataFile) {
+) -> IcebergResult<(String /*referenced_data_filepath*/, DataFile)> {
     assert_eq!(blob_metadata.r#type, DELETION_VECTOR_V1);
     let referenced_data_filepath = blob_metadata
         .properties
@@ -141,34 +140,30 @@ fn get_data_file_for_deletion_vector(
         .unwrap()
         .clone();
 
-    let data_file_proxy = DataFileProxy {
-        content: DataContentType::PositionDeletes,
-        file_path: puffin_filepath.to_string(),
-        file_format: DataFileFormat::Puffin,
-        partition: Struct::empty(),
-        record_count: blob_metadata
-            .properties
-            .get(DELETION_VECTOR_CADINALITY)
-            .unwrap()
-            .parse()
-            .unwrap(),
-        file_size_in_bytes: 0, // TODO(hjiang): Not necessary for puffin blob, but worth double confirm.
-        column_sizes: HashMap::new(),
-        value_counts: HashMap::new(),
-        null_value_counts: HashMap::new(),
-        nan_value_counts: HashMap::new(),
-        lower_bounds: HashMap::new(),
-        upper_bounds: HashMap::new(),
-        key_metadata: None,
-        split_offsets: Vec::new(),
-        equality_ids: Vec::new(),
-        sort_order_id: None,
-        first_row_id: None,
-        partition_spec_id: 0,
-        referenced_data_file: Some(referenced_data_filepath.clone()),
-        content_offset: Some(blob_metadata.offset as i64),
-        content_size_in_bytes: Some(blob_metadata.length as i64),
-    };
-    let data_file = unsafe { std::mem::transmute::<DataFileProxy, DataFile>(data_file_proxy) };
-    (referenced_data_filepath, data_file)
+    let data_file = DataFileBuilder::default()
+        .content(DataContentType::PositionDeletes)
+        .file_path(puffin_filepath.to_string())
+        .file_format(DataFileFormat::Puffin)
+        .record_count(
+            blob_metadata
+                .properties
+                .get(DELETION_VECTOR_CADINALITY)
+                .unwrap()
+                .parse()
+                .unwrap(),
+        )
+        // TODO(hjiang): Not necessary for puffin blob, but worth double confirm.
+        .file_size_in_bytes(0)
+        .referenced_data_file(Some(referenced_data_filepath.clone()))
+        .content_offset(Some(blob_metadata.offset as i64))
+        .content_size_in_bytes(Some(blob_metadata.length as i64))
+        .build()
+        .map_err(|e| {
+            IcebergError::new(
+                ErrorKind::Unexpected,
+                format!("Failed to build deletion vector data file: {e:?}"),
+            )
+        })?;
+
+    Ok((referenced_data_filepath, data_file))
 }

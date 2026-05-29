@@ -1,7 +1,7 @@
 // iceberg-rust currently doesn't support puffin related features, to write deletion vector into iceberg metadata, we need two things at least:
 // 1. the start offset and blob size for each deletion vector
 // 2. append blob metadata into manifest file
-// So here to workaround the limitation and to avoid/reduce changes to iceberg-rust ourselves, we use a few proxy types to reinterpret the memory directly.
+// So here to workaround the limitation and to avoid/reduce changes to iceberg-rust ourselves, we use a proxy type to read the writer's metadata before closing it.
 //
 // deletion vector spec:
 // issue collection: https://github.com/apache/iceberg/issues/11122
@@ -20,10 +20,7 @@ use crate::storage::table::iceberg::deletion_vector_manifest_manager::DeletionVe
 use crate::storage::table::iceberg::file_index_manifest_manager::FileIndexManifestManager;
 use iceberg::io::FileIO;
 use iceberg::puffin::{CompressionCodec, PuffinWriter};
-use iceberg::spec::{
-    DataContentType, DataFileFormat, Datum, FormatVersion, ManifestListWriter, Snapshot, Struct,
-    TableMetadata,
-};
+use iceberg::spec::{FormatVersion, ManifestListWriter, Snapshot, TableMetadata};
 use iceberg::Result as IcebergResult;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -54,142 +51,6 @@ struct PuffinWriterProxy {
     properties: HashMap<String, String>,
     footer_compression_codec: CompressionCodec,
     flags: std::collections::HashSet<PuffinFlagProxy>,
-}
-
-/// Data file carries data file path, partition tuple, metrics, …
-#[derive(Debug, PartialEq, Clone, Eq)]
-pub struct DataFileProxy {
-    /// field id: 134
-    ///
-    /// Type of content stored by the data file: data, equality deletes,
-    /// or position deletes (all v1 files are data files)
-    pub(crate) content: DataContentType,
-    /// field id: 100
-    ///
-    /// Full URI for the file with FS scheme
-    pub(crate) file_path: String,
-    /// field id: 101
-    ///
-    /// String file format name, `avro`, `orc`, `parquet`, or `puffin`
-    pub(crate) file_format: DataFileFormat,
-    /// field id: 102
-    ///
-    /// Partition data tuple, schema based on the partition spec output using
-    /// partition field ids for the struct field ids
-    pub(crate) partition: Struct,
-    /// field id: 103
-    ///
-    /// Number of records in this file, or the cardinality of a deletion vector
-    pub(crate) record_count: u64,
-    /// field id: 104
-    ///
-    /// Total file size in bytes
-    pub(crate) file_size_in_bytes: u64,
-    /// field id: 108
-    /// key field id: 117
-    /// value field id: 118
-    ///
-    /// Map from column id to the total size on disk of all regions that
-    /// store the column. Does not include bytes necessary to read other
-    /// columns, like footers. Leave null for row-oriented formats (Avro)
-    pub(crate) column_sizes: HashMap<i32, u64>,
-    /// field id: 109
-    /// key field id: 119
-    /// value field id: 120
-    ///
-    /// Map from column id to number of values in the column (including null
-    /// and NaN values)
-    pub(crate) value_counts: HashMap<i32, u64>,
-    /// field id: 110
-    /// key field id: 121
-    /// value field id: 122
-    ///
-    /// Map from column id to number of null values in the column
-    pub(crate) null_value_counts: HashMap<i32, u64>,
-    /// field id: 137
-    /// key field id: 138
-    /// value field id: 139
-    ///
-    /// Map from column id to number of NaN values in the column
-    pub(crate) nan_value_counts: HashMap<i32, u64>,
-    /// field id: 125
-    /// key field id: 126
-    /// value field id: 127
-    ///
-    /// Map from column id to lower bound in the column serialized as binary.
-    /// Each value must be less than or equal to all non-null, non-NaN values
-    /// in the column for the file.
-    ///
-    /// Reference:
-    ///
-    /// - [Binary single-value serialization](https://iceberg.apache.org/spec/#binary-single-value-serialization)
-    pub(crate) lower_bounds: HashMap<i32, Datum>,
-    /// field id: 128
-    /// key field id: 129
-    /// value field id: 130
-    ///
-    /// Map from column id to upper bound in the column serialized as binary.
-    /// Each value must be greater than or equal to all non-null, non-Nan
-    /// values in the column for the file.
-    ///
-    /// Reference:
-    ///
-    /// - [Binary single-value serialization](https://iceberg.apache.org/spec/#binary-single-value-serialization)
-    pub(crate) upper_bounds: HashMap<i32, Datum>,
-    /// field id: 131
-    ///
-    /// Implementation-specific key metadata for encryption
-    pub(crate) key_metadata: Option<Vec<u8>>,
-    /// field id: 132
-    /// element field id: 133
-    ///
-    /// Split offsets for the data file. For example, all row group offsets
-    /// in a Parquet file. Must be sorted ascending
-    pub(crate) split_offsets: Vec<i64>,
-    /// field id: 135
-    /// element field id: 136
-    ///
-    /// Field ids used to determine row equality in equality delete files.
-    /// Required when content is EqualityDeletes and should be null
-    /// otherwise. Fields with ids listed in this column must be present
-    /// in the delete file
-    pub(crate) equality_ids: Vec<i32>,
-    /// field id: 140
-    ///
-    /// ID representing sort order for this file.
-    ///
-    /// If sort order ID is missing or unknown, then the order is assumed to
-    /// be unsorted. Only data files and equality delete files should be
-    /// written with a non-null order id. Position deletes are required to be
-    /// sorted by file and position, not a table order, and should set sort
-    /// order id to null. Readers must ignore sort order id for position
-    /// delete files.
-    pub(crate) sort_order_id: Option<i32>,
-    /// field id: 142
-    ///
-    /// The _row_id for the first row in the data file.
-    /// For more details, refer to https://github.com/apache/iceberg/blob/main/format/spec.md#first-row-id-inheritance
-    pub(crate) first_row_id: Option<i64>,
-    /// This field is not included in spec. It is just store in memory representation used
-    /// in process.
-    pub(crate) partition_spec_id: i32,
-    /// field id: 143
-    ///
-    /// Fully qualified location (URI with FS scheme) of a data file that all deletes reference.
-    /// Position delete metadata can use `referenced_data_file` when all deletes tracked by the
-    /// entry are in a single data file. Setting the referenced file is required for deletion vectors.
-    pub(crate) referenced_data_file: Option<String>,
-    /// field: 144
-    ///
-    /// The offset in the file where the content starts.
-    /// The `content_offset` and `content_size_in_bytes` fields are used to reference a specific blob
-    /// for direct access to a deletion vector. For deletion vectors, these values are required and must
-    /// exactly match the `offset` and `length` stored in the Puffin footer for the deletion vector blob.
-    pub(crate) content_offset: Option<i64>,
-    /// field: 145
-    ///
-    /// The length of a referenced content stored in the file; required if `content_offset` is present
-    pub(crate) content_size_in_bytes: Option<i64>,
 }
 
 /// Get puffin blob metadata within the puffin write, and close the writer.

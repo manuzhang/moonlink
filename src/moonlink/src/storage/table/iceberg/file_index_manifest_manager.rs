@@ -3,7 +3,6 @@ use crate::storage::table::iceberg::index::{
 };
 use crate::storage::table::iceberg::manifest_utils;
 use crate::storage::table::iceberg::manifest_utils::ManifestEntryType;
-use crate::storage::table::iceberg::puffin_writer_proxy::DataFileProxy;
 use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
 
 use std::collections::{HashMap, HashSet};
@@ -11,10 +10,10 @@ use std::sync::Arc;
 
 use iceberg::io::FileIO;
 use iceberg::spec::{
-    DataContentType, DataFile, DataFileFormat, ManifestEntry, ManifestFile, ManifestMetadata,
-    ManifestWriter, Struct, TableMetadata,
+    DataContentType, DataFile, DataFileBuilder, DataFileFormat, ManifestEntry, ManifestFile,
+    ManifestMetadata, ManifestWriter, TableMetadata,
 };
-use iceberg::Result as IcebergResult;
+use iceberg::{Error as IcebergError, ErrorKind, Result as IcebergResult};
 
 pub(crate) struct FileIndexManifestManager<'a> {
     table_metadata: &'a TableMetadata,
@@ -82,7 +81,7 @@ impl<'a> FileIndexManifestManager<'a> {
     ) -> IcebergResult<()> {
         for (puffin_filepath, blob_metadata) in file_index_blobs_to_add.iter() {
             for cur_blob_metadata in blob_metadata.iter() {
-                let data_file = get_data_file_for_file_index(puffin_filepath, cur_blob_metadata);
+                let data_file = get_data_file_for_file_index(puffin_filepath, cur_blob_metadata)?;
                 self.init_writer_for_once()?;
                 self.writer
                     .as_mut()
@@ -103,39 +102,31 @@ impl<'a> FileIndexManifestManager<'a> {
     }
 }
 
-/// Util function to get `DataFileProxy` for new file index puffin blob.
+/// Util function to get `DataFile` for new file index puffin blob.
 fn get_data_file_for_file_index(
     puffin_filepath: &str,
     blob_metadata: &PuffinBlobMetadataProxy,
-) -> DataFile {
+) -> IcebergResult<DataFile> {
     assert_eq!(blob_metadata.r#type, MOONCAKE_HASH_INDEX_V1);
-    let data_file_proxy = DataFileProxy {
-        content: DataContentType::Data,
-        file_path: puffin_filepath.to_string(),
-        file_format: DataFileFormat::Puffin,
-        partition: Struct::empty(),
-        record_count: blob_metadata
-            .properties
-            .get(MOONCAKE_HASH_INDEX_V1_CARDINALITY)
-            .unwrap()
-            .parse()
-            .unwrap(),
-        file_size_in_bytes: 0, // TODO(hjiang): Not necessary for puffin blob, but worth double confirm.
-        column_sizes: HashMap::new(),
-        value_counts: HashMap::new(),
-        null_value_counts: HashMap::new(),
-        nan_value_counts: HashMap::new(),
-        lower_bounds: HashMap::new(),
-        upper_bounds: HashMap::new(),
-        key_metadata: None,
-        split_offsets: Vec::new(),
-        equality_ids: Vec::new(),
-        sort_order_id: None,
-        first_row_id: None,
-        partition_spec_id: 0,
-        referenced_data_file: None,
-        content_offset: None,
-        content_size_in_bytes: None,
-    };
-    unsafe { std::mem::transmute::<DataFileProxy, DataFile>(data_file_proxy) }
+    DataFileBuilder::default()
+        .content(DataContentType::Data)
+        .file_path(puffin_filepath.to_string())
+        .file_format(DataFileFormat::Puffin)
+        .record_count(
+            blob_metadata
+                .properties
+                .get(MOONCAKE_HASH_INDEX_V1_CARDINALITY)
+                .unwrap()
+                .parse()
+                .unwrap(),
+        )
+        // TODO(hjiang): Not necessary for puffin blob, but worth double confirm.
+        .file_size_in_bytes(0)
+        .build()
+        .map_err(|e| {
+            IcebergError::new(
+                ErrorKind::Unexpected,
+                format!("Failed to build file index data file: {e:?}"),
+            )
+        })
 }
