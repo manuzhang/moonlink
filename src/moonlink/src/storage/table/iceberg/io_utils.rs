@@ -14,7 +14,10 @@ use std::sync::Arc;
 use iceberg::io::FileIO;
 #[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
 use iceberg::io::FileIOBuilder;
-#[cfg(feature = "catalog-rest")]
+#[cfg(any(
+    feature = "catalog-rest",
+    all(feature = "catalog-glue", feature = "storage-s3")
+))]
 use iceberg::io::StorageFactory;
 use iceberg::spec::DataFile;
 use iceberg::spec::TableMetadata as IcebergTableMetadata;
@@ -179,7 +182,10 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
 }
 
 /// Create an iceberg storage factory for catalog-owned [`FileIO`] instances.
-#[cfg(feature = "catalog-rest")]
+#[cfg(any(
+    feature = "catalog-rest",
+    all(feature = "catalog-glue", feature = "storage-s3")
+))]
 pub(crate) fn create_storage_factory(
     accessor_config: &AccessorConfig,
 ) -> IcebergResult<Arc<dyn StorageFactory>> {
