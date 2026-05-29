@@ -4,8 +4,12 @@ use crate::storage::filesystem::storage_config::StorageConfig;
 use crate::storage::table::iceberg::parquet_utils;
 
 use std::path::Path;
+#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
+use std::sync::Arc;
 
-use iceberg::io::{FileIO, FileIOBuilder};
+use iceberg::io::FileIO;
+#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
+use iceberg::io::FileIOBuilder;
 use iceberg::spec::DataFile;
 use iceberg::spec::TableMetadata as IcebergTableMetadata;
 use iceberg::table::Table as IcebergTable;
@@ -13,6 +17,8 @@ use iceberg::writer::file_writer::location_generator::{
     DefaultLocationGenerator, LocationGenerator,
 };
 use iceberg::{Error as IcebergError, Result as IcebergResult};
+#[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
+use iceberg_storage_opendal::OpenDalStorageFactory;
 
 /// Get a unique filepath for iceberg table data filepath.
 fn generate_unique_data_filepath(
@@ -101,7 +107,7 @@ pub(crate) async fn upload_index_file(
 pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<FileIO> {
     match &accessor_config.storage_config {
         #[cfg(feature = "storage-fs")]
-        StorageConfig::FileSystem { .. } => FileIOBuilder::new_fs_io().build(),
+        StorageConfig::FileSystem { .. } => Ok(FileIO::new_with_fs()),
         #[cfg(feature = "storage-gcs")]
         StorageConfig::Gcs {
             project,
@@ -114,25 +120,28 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
         } => {
             // Testing environment.
             if *disable_auth {
-                let file_io_builder = FileIOBuilder::new("GCS")
+                let file_io_builder = FileIOBuilder::new(Arc::new(OpenDalStorageFactory::Gcs))
                     .with_prop(iceberg::io::GCS_PROJECT_ID, project)
                     .with_prop(iceberg::io::GCS_SERVICE_PATH, endpoint.as_ref().unwrap())
                     .with_prop(iceberg::io::GCS_NO_AUTH, "true")
                     .with_prop(iceberg::io::GCS_ALLOW_ANONYMOUS, "true")
                     .with_prop(iceberg::io::GCS_DISABLE_CONFIG_LOAD, "true")
                     .with_prop(iceberg::io::GCS_DISABLE_VM_METADATA, "true");
-                return file_io_builder.build();
+                return Ok(file_io_builder.build());
             }
 
             // Production environment.
-            let file_io_builder = FileIOBuilder::new("S3")
-                .with_prop(iceberg::io::S3_ENDPOINT, "https://storage.googleapis.com")
-                .with_prop(iceberg::io::S3_REGION, region)
-                .with_prop(iceberg::io::S3_ACCESS_KEY_ID, access_key_id)
-                .with_prop(iceberg::io::S3_SECRET_ACCESS_KEY, secret_access_key)
-                .with_prop(iceberg::io::S3_DISABLE_CONFIG_LOAD, "true")
-                .with_prop(iceberg::io::S3_DISABLE_EC2_METADATA, "true");
-            file_io_builder.build()
+            let file_io_builder = FileIOBuilder::new(Arc::new(OpenDalStorageFactory::S3 {
+                configured_scheme: "s3".to_string(),
+                customized_credential_load: None,
+            }))
+            .with_prop(iceberg::io::S3_ENDPOINT, "https://storage.googleapis.com")
+            .with_prop(iceberg::io::S3_REGION, region)
+            .with_prop(iceberg::io::S3_ACCESS_KEY_ID, access_key_id)
+            .with_prop(iceberg::io::S3_SECRET_ACCESS_KEY, secret_access_key)
+            .with_prop(iceberg::io::S3_DISABLE_CONFIG_LOAD, "true")
+            .with_prop(iceberg::io::S3_DISABLE_EC2_METADATA, "true");
+            Ok(file_io_builder.build())
         }
         #[cfg(feature = "storage-s3")]
         StorageConfig::S3 {
@@ -142,16 +151,19 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
             endpoint,
             ..
         } => {
-            let mut file_io_builder = FileIOBuilder::new("s3")
-                .with_prop(iceberg::io::S3_REGION, region)
-                .with_prop(iceberg::io::S3_ACCESS_KEY_ID, access_key_id)
-                .with_prop(iceberg::io::S3_SECRET_ACCESS_KEY, secret_access_key)
-                .with_prop(iceberg::io::S3_DISABLE_CONFIG_LOAD, "true")
-                .with_prop(iceberg::io::S3_DISABLE_EC2_METADATA, "true");
+            let mut file_io_builder = FileIOBuilder::new(Arc::new(OpenDalStorageFactory::S3 {
+                configured_scheme: "s3".to_string(),
+                customized_credential_load: None,
+            }))
+            .with_prop(iceberg::io::S3_REGION, region)
+            .with_prop(iceberg::io::S3_ACCESS_KEY_ID, access_key_id)
+            .with_prop(iceberg::io::S3_SECRET_ACCESS_KEY, secret_access_key)
+            .with_prop(iceberg::io::S3_DISABLE_CONFIG_LOAD, "true")
+            .with_prop(iceberg::io::S3_DISABLE_EC2_METADATA, "true");
             if let Some(endpoint) = endpoint {
                 file_io_builder = file_io_builder.with_prop(iceberg::io::S3_ENDPOINT, endpoint);
             }
-            file_io_builder.build()
+            Ok(file_io_builder.build())
         }
     }
 }

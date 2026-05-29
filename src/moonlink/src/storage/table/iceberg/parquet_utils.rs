@@ -18,7 +18,7 @@
 // Code adapted from iceberg-rust: https://github.com/apache/iceberg-rust
 
 use iceberg::arrow::DEFAULT_MAP_FIELD_NAME;
-use iceberg::io::FileIOBuilder;
+use iceberg::io::FileIO;
 use iceberg::spec::{
     visit_schema, DataContentType, DataFile, DataFileBuilder, DataFileFormat, ListType, MapType,
     NestedFieldRef, PrimitiveType, Schema, SchemaRef, SchemaVisitor, Struct, StructType,
@@ -232,13 +232,13 @@ fn parquet_to_data_file_builder(
         // - We can ignore implementing distinct_counts due to this: https://lists.apache.org/thread/j52tsojv0x4bopxyzsp7m7bqt23n5fnd
         .lower_bounds(lower_bounds)
         .upper_bounds(upper_bounds)
-        .split_offsets(
+        .split_offsets(Some(
             metadata
                 .row_groups()
                 .iter()
                 .filter_map(|group| group.file_offset())
                 .collect(),
-        );
+        ));
 
     Ok(builder)
 }
@@ -251,7 +251,7 @@ fn parquet_to_data_file_builder(
 pub(crate) async fn get_parquet_metadata(
     local_parquet_file: &str,
 ) -> IcebergResult<(ParquetMetaData, usize /*file size*/)> {
-    let file_io = FileIOBuilder::new_fs_io().build().unwrap();
+    let file_io = FileIO::new_with_fs();
     let input_file = file_io.new_input(local_parquet_file)?;
     let file_metadata = input_file.metadata().await?;
     let file_size = file_metadata.size as usize;

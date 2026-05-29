@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::error::{Error, Result};
 
 use std::io::SeekFrom;

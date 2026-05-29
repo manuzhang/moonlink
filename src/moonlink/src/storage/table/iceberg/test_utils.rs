@@ -1,6 +1,5 @@
 use arrow_array::RecordBatch;
 use iceberg::io::FileIO;
-use iceberg::io::FileRead;
 use iceberg::Result as IcebergResult;
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 
