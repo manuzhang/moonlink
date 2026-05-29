@@ -336,14 +336,14 @@ pub async fn crash_and_recover_backend(
 /// Extract primary-key IDs from `read_state` **after applying deletion vectors and position deletes**.
 #[allow(dead_code)]
 pub async fn ids_from_state_with_deletes(read_state: &ReadState) -> HashSet<i64> {
-    use iceberg::io::FileIOBuilder;
+    use iceberg::io::FileIO;
     use iceberg::puffin::PuffinReader;
 
     let (data_files, puffin_files, deletion_vectors, mut position_deletes) =
         decode_read_state_for_testing(read_state);
 
     // Load deletion vector blobs and convert to position deletes
-    let file_io = FileIOBuilder::new_fs_io().build().unwrap();
+    let file_io = FileIO::new_with_fs();
     for cur_blob in deletion_vectors.iter() {
         let puffin_file_path = puffin_files
             .get(cur_blob.puffin_file_number as usize)

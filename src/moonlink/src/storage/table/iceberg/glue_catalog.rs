@@ -119,7 +119,8 @@ impl GlueCatalog {
         let config_props =
             extract_glue_config_properties(&glue_config, &accessor_config.storage_config)?;
         let warehouse_location = accessor_config.get_root_path();
-        let builder = IcebergGlueCatalogBuilder::default();
+        let storage_factory = iceberg_io_utils::create_storage_factory(&accessor_config)?;
+        let builder = IcebergGlueCatalogBuilder::default().with_storage_factory(storage_factory);
         let catalog = builder.load(glue_config.name, config_props).await?;
         let file_io = iceberg_io_utils::create_file_io(&accessor_config)?;
         Ok(Self {
@@ -140,7 +141,8 @@ impl GlueCatalog {
         let config_props =
             extract_glue_config_properties(&glue_config, &accessor_config.storage_config)?;
         let warehouse_location = accessor_config.get_root_path();
-        let builder = IcebergGlueCatalogBuilder::default();
+        let storage_factory = iceberg_io_utils::create_storage_factory(&accessor_config)?;
+        let builder = IcebergGlueCatalogBuilder::default().with_storage_factory(storage_factory);
         let catalog = builder.load(glue_config.name, config_props).await?;
         let file_io = iceberg_io_utils::create_file_io(&accessor_config)?;
         Ok(Self {

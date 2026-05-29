@@ -171,7 +171,6 @@ impl SnapshotTableState {
             for cur_data_file in cur_file_index.files.iter() {
                 let table_unique_file_id = self.get_table_unique_file_id(cur_data_file.file_id());
                 assert!(tentative_data_files_to_compact.remove(&table_unique_file_id));
-                reject_by_unpersistence += 1;
             }
             assert!(file_indices_to_compact.remove(cur_file_index));
         }

@@ -73,7 +73,7 @@ pub(crate) async fn load_deletion_vector_from_blob(
     let cache_filepath = puffin_blob_ref
         .puffin_file_cache_handle
         .get_cache_filepath();
-    let file_io = FileIO::from_path(cache_filepath)?.build()?;
+    let file_io = FileIO::new_with_fs();
     let puffin_blob = load_blob_from_puffin_file(file_io, cache_filepath).await?;
     let deletion_vector = DeletionVector::deserialize(puffin_blob)?;
     Ok(deletion_vector.take_as_batch_delete_vector())

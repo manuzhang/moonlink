@@ -262,8 +262,8 @@ impl MetricsHandler {
             .json(&insert_payload)
             .send()
             .await;
-        if response.is_err() {
-            error!("Failed to ingest otel data: {:?}", response.unwrap_err());
+        if let Err(error) = response {
+            error!("Failed to ingest otel data: {:?}", error);
         }
     }
 

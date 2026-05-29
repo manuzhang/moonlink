@@ -13,7 +13,7 @@ use crate::{StorageConfig, WalConfig};
 use arrow::array::Int32Array;
 use arrow_array::Array;
 use futures::future::join_all;
-use iceberg::io::FileIOBuilder;
+use iceberg::io::FileIO;
 use moonlink_table_metadata::{DeletionVector, PositionDelete};
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use std::collections::HashSet;
@@ -235,7 +235,7 @@ pub async fn verify_files_and_deletions(
     expected_ids: &[i32],
 ) {
     // Read deletion vector blobs and add to position deletes.
-    let file_io = FileIOBuilder::new_fs_io().build().unwrap();
+    let file_io = FileIO::new_with_fs();
     let mut position_deletes = position_deletes;
     let mut load_blob_futures = Vec::with_capacity(deletion_vectors.len());
     for cur_blob in deletion_vectors.iter() {

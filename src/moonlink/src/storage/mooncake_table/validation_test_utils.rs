@@ -17,7 +17,7 @@ use crate::IcebergTableConfig;
 use crate::IcebergTableManager;
 use crate::ObjectStorageCache;
 use crate::TableManager;
-use iceberg::io::FileIOBuilder;
+use iceberg::io::FileIO;
 use moonlink_table_metadata::PositionDelete;
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -33,7 +33,7 @@ pub(crate) async fn check_deletion_vector_consistency(disk_file_entry: &DiskFile
         return;
     }
 
-    let local_fileio = FileIOBuilder::new_fs_io().build().unwrap();
+    let local_fileio = FileIO::new_with_fs();
     let blob = puffin_utils::load_blob_from_puffin_file(
         local_fileio,
         disk_file_entry

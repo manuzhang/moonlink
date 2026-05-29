@@ -27,6 +27,34 @@ use uuid::Uuid;
 
 use std::collections::HashMap;
 
+fn decimal_datum_from_i128(value: i128, scale: u32) -> IcebergResult<Datum> {
+    if scale == 0 {
+        return Datum::decimal_from_str(value.to_string());
+    }
+
+    let is_negative = value < 0;
+    let digits = value.unsigned_abs().to_string();
+    let scale = scale as usize;
+    let decimal = if digits.len() <= scale {
+        format!(
+            "{}0.{}{}",
+            if is_negative { "-" } else { "" },
+            "0".repeat(scale - digits.len()),
+            digits
+        )
+    } else {
+        let decimal_pos = digits.len() - scale;
+        format!(
+            "{}{}.{}",
+            if is_negative { "-" } else { "" },
+            &digits[..decimal_pos],
+            &digits[decimal_pos..]
+        )
+    };
+
+    Datum::decimal_from_str(decimal)
+}
+
 // ================================
 // get_parquet_stat_min_as_datum
 // ================================
@@ -83,7 +111,7 @@ pub(crate) fn get_parquet_stat_min_as_datum(
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::ByteArray(stats),
         ) => {
@@ -92,12 +120,12 @@ pub(crate) fn get_parquet_stat_min_as_datum(
             };
             // TODO(hjiang): Add unit test.
             let value = i128::from_be_bytes(bytes.try_into()?);
-            Some(Datum::decimal(value)?)
+            Some(decimal_datum_from_i128(value, *scale)?)
         }
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::FixedLenByteArray(stats),
         ) => {
@@ -112,30 +140,36 @@ pub(crate) fn get_parquet_stat_min_as_datum(
                     format!("Can't convert bytes to i128: {bytes:?}"),
                 )
             })?;
-            Some(Datum::decimal(value)?)
+            Some(decimal_datum_from_i128(value, *scale)?)
         }
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::Int32(stats),
-        ) => stats.min_opt().map(|val| {
-            // TODO(hjiang): Add unit test.
-            let value = i128::from(*val);
-            Datum::decimal(value).unwrap()
-        }),
+        ) => stats
+            .min_opt()
+            .map(|val| {
+                // TODO(hjiang): Add unit test.
+                let value = i128::from(*val);
+                decimal_datum_from_i128(value, *scale)
+            })
+            .transpose()?,
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::Int64(stats),
-        ) => stats.min_opt().map(|val| {
-            // TODO(hjiang): Add unit test.
-            let value = i128::from(*val);
-            Datum::decimal(value).unwrap()
-        }),
+        ) => stats
+            .min_opt()
+            .map(|val| {
+                // TODO(hjiang): Add unit test.
+                let value = i128::from(*val);
+                decimal_datum_from_i128(value, *scale)
+            })
+            .transpose()?,
         (PrimitiveType::Uuid, Statistics::FixedLenByteArray(stats)) => {
             let Some(bytes) = stats.min_bytes_opt() else {
                 return Ok(None);
@@ -229,7 +263,7 @@ pub(crate) fn get_parquet_stat_max_as_datum(
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::ByteArray(stats),
         ) => {
@@ -238,12 +272,12 @@ pub(crate) fn get_parquet_stat_max_as_datum(
             };
             // TODO(hjiang): Add unit test.
             let value = i128::from_be_bytes(bytes.try_into()?);
-            Some(Datum::decimal(value)?)
+            Some(decimal_datum_from_i128(value, *scale)?)
         }
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::FixedLenByteArray(stats),
         ) => {
@@ -258,30 +292,36 @@ pub(crate) fn get_parquet_stat_max_as_datum(
                     format!("Can't convert bytes to i128: {bytes:?}"),
                 )
             })?;
-            Some(Datum::decimal(value)?)
+            Some(decimal_datum_from_i128(value, *scale)?)
         }
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::Int32(stats),
-        ) => stats.max_opt().map(|val| {
-            // TODO(hjiang): Add unit test.
-            let value = i128::from(*val);
-            Datum::decimal(value).unwrap()
-        }),
+        ) => stats
+            .max_opt()
+            .map(|val| {
+                // TODO(hjiang): Add unit test.
+                let value = i128::from(*val);
+                decimal_datum_from_i128(value, *scale)
+            })
+            .transpose()?,
         (
             PrimitiveType::Decimal {
                 precision: _,
-                scale: _,
+                scale,
             },
             Statistics::Int64(stats),
-        ) => stats.max_opt().map(|val| {
-            // TODO(hjiang): Add unit test.
-            let value = i128::from(*val);
-            Datum::decimal(value).unwrap()
-        }),
+        ) => stats
+            .max_opt()
+            .map(|val| {
+                // TODO(hjiang): Add unit test.
+                let value = i128::from(*val);
+                decimal_datum_from_i128(value, *scale)
+            })
+            .transpose()?,
         (PrimitiveType::Uuid, Statistics::FixedLenByteArray(stats)) => {
             let Some(bytes) = stats.max_bytes_opt() else {
                 return Ok(None);

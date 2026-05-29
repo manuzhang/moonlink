@@ -118,8 +118,7 @@ impl FileCatalog {
         filesystem_accessor: Arc<dyn BaseFileSystemAccess>,
         iceberg_schema: IcebergSchema,
     ) -> IcebergResult<Self> {
-        use iceberg::io::FileIOBuilder;
-        let file_io = FileIOBuilder::new_fs_io().build()?;
+        let file_io = iceberg::io::FileIO::new_with_fs();
         Ok(Self {
             filesystem_accessor,
             file_io,

@@ -79,7 +79,14 @@ pub(crate) async fn get_or_create_deltalake_table(
         Ok(existing_table) => Ok(existing_table),
         Err(_) => {
             let arrow_schema = mooncake_table_metadata.schema.as_ref();
-            let delta_schema_struct = deltalake::kernel::Schema::try_from_arrow(arrow_schema)?;
+            let delta_arrow_schema: deltalake::arrow::datatypes::Schema =
+                serde_json::from_value(serde_json::to_value(arrow_schema)?)?;
+            let delta_schema_struct =
+                deltalake::kernel::Schema::try_from_arrow(&delta_arrow_schema).map_err(|e| {
+                    crate::Error::delta_generic_error(format!(
+                        "Failed to convert Arrow schema to Delta schema: {e}"
+                    ))
+                })?;
             let delta_schema_fields: Vec<deltalake::kernel::StructField> =
                 delta_schema_struct.fields().cloned().collect();
 

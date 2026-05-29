@@ -12,7 +12,7 @@ use datafusion::datasource::physical_plan::parquet::{
     DefaultParquetFileReaderFactory, ParquetAccessPlan,
 };
 use datafusion::datasource::physical_plan::{
-    FileMeta, FileScanConfigBuilder, ParquetFileReaderFactory, ParquetSource,
+    FileScanConfigBuilder, ParquetFileReaderFactory, ParquetSource,
 };
 use datafusion::execution::object_store::ObjectStoreUrl;
 use datafusion::logical_expr::utils::conjunction;
@@ -82,7 +82,7 @@ impl TableProvider for MooncakeTableProvider {
         let predicate = conjunction(filters.to_vec())
             .map(|predicate| state.create_physical_expr(predicate, &schema))
             .transpose()?;
-        let mut source = ParquetSource::default();
+        let mut source = ParquetSource::new(self.schema());
         if let Some(predicate) = predicate {
             source = source.with_predicate(predicate);
         }
@@ -93,8 +93,8 @@ impl TableProvider for MooncakeTableProvider {
             Arc::clone(&self.scan),
         ));
         let source = Arc::new(source.with_parquet_file_reader_factory(reader_factory));
-        let mut config_builder = FileScanConfigBuilder::new(url, self.schema(), source)
-            .with_projection(projection.cloned())
+        let mut config_builder = FileScanConfigBuilder::new(url, source)
+            .with_projection_indices(projection.cloned())?
             .with_limit(limit);
 
         let MooncakeTableMetadata {
@@ -199,12 +199,16 @@ impl ParquetFileReaderFactory for MooncakeParquetFileReaderFactory {
     fn create_reader(
         &self,
         partition_index: usize,
-        file_meta: FileMeta,
+        partitioned_file: PartitionedFile,
         metadata_size_hint: Option<usize>,
         metrics: &ExecutionPlanMetricsSet,
     ) -> Result<Box<dyn AsyncFileReader + Send>, DataFusionError> {
-        self.inner
-            .create_reader(partition_index, file_meta, metadata_size_hint, metrics)
+        self.inner.create_reader(
+            partition_index,
+            partitioned_file,
+            metadata_size_hint,
+            metrics,
+        )
     }
 }
 
