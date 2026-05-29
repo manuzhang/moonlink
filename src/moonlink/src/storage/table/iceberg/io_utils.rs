@@ -4,11 +4,18 @@ use crate::storage::filesystem::storage_config::StorageConfig;
 use crate::storage::table::iceberg::parquet_utils;
 
 use std::path::Path;
+#[cfg(any(
+    feature = "catalog-rest",
+    feature = "storage-gcs",
+    feature = "storage-s3"
+))]
 use std::sync::Arc;
 
+use iceberg::io::FileIO;
 #[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
 use iceberg::io::FileIOBuilder;
-use iceberg::io::{FileIO, StorageFactory};
+#[cfg(feature = "catalog-rest")]
+use iceberg::io::StorageFactory;
 use iceberg::spec::DataFile;
 use iceberg::spec::TableMetadata as IcebergTableMetadata;
 use iceberg::table::Table as IcebergTable;
@@ -16,6 +23,11 @@ use iceberg::writer::file_writer::location_generator::{
     DefaultLocationGenerator, LocationGenerator,
 };
 use iceberg::{Error as IcebergError, Result as IcebergResult};
+#[cfg(any(
+    feature = "catalog-rest",
+    feature = "storage-gcs",
+    feature = "storage-s3"
+))]
 use iceberg_storage_opendal::OpenDalStorageFactory;
 
 /// Get a unique filepath for iceberg table data filepath.
@@ -167,6 +179,7 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
 }
 
 /// Create an iceberg storage factory for catalog-owned [`FileIO`] instances.
+#[cfg(feature = "catalog-rest")]
 pub(crate) fn create_storage_factory(
     accessor_config: &AccessorConfig,
 ) -> IcebergResult<Arc<dyn StorageFactory>> {
