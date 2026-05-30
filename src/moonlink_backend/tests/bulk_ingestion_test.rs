@@ -54,6 +54,10 @@ mod tests {
 
             // Get mooncake snapshot.
             let lsn_after_insert = current_wal_lsn(&client).await;
+            backend
+                .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn_after_insert)
+                .await
+                .unwrap();
             let ids = ids_from_state(
                 &backend
                     .scan_table(
