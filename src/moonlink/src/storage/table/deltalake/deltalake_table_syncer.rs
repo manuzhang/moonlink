@@ -77,6 +77,7 @@ impl DeltalakeTableManager {
         .await?;
         self.table = Some(table.clone());
         let filesystem_accessor = self.filesystem_accessor.clone();
+        let table_location = self.config.location.clone();
 
         let new_data_files = take_data_files_to_import(&mut snapshot_payload);
         let old_data_files = take_data_files_to_remove(&mut snapshot_payload);
@@ -87,8 +88,8 @@ impl DeltalakeTableManager {
 
         let uploaded_files = stream::iter(new_data_files.into_iter())
             .map(|cur_local_data_file| {
-                let table = table.clone();
                 let fs_accessor = filesystem_accessor.clone();
+                let table_location = table_location.clone();
 
                 async move {
                     let (parquet_metadata, file_size) =
@@ -97,7 +98,7 @@ impl DeltalakeTableManager {
                     let file_stats = collect_parquet_stats(&parquet_metadata)?;
 
                     let remote_filepath = upload_data_file_to_delta(
-                        &table,
+                        &table_location,
                         &cur_local_data_file.file_path,
                         &*fs_accessor,
                     )
