@@ -65,6 +65,24 @@ struct ReplayEnvironment {
     iceberg_temp_dir: TempDir,
 }
 
+async fn remove_pending_payload<T>(
+    pending_payloads: &Arc<Mutex<HashMap<uuid::Uuid, T>>>,
+    event_notification: &Arc<Notify>,
+    event_id: uuid::Uuid,
+) -> T {
+    loop {
+        let notified = event_notification.notified();
+        let payload = {
+            let mut guard = pending_payloads.lock().await;
+            guard.remove(&event_id)
+        };
+        if let Some(payload) = payload {
+            return payload;
+        }
+        notified.await;
+    }
+}
+
 fn create_disk_writer_config() -> DiskSliceWriterConfig {
     DiskSliceWriterConfig::default()
 }
@@ -601,10 +619,12 @@ pub(crate) async fn replay(replay_filepath: &str) {
             // =====================
             MooncakeTableEvent::IcebergSnapshotInitiation(snapshot_initiation_event) => {
                 assert!(ongoing_iceberg_snapshot_id.insert(snapshot_initiation_event.uuid));
-                let payload = {
-                    let mut guard = pending_persistence_snapshot_payloads_clone.lock().await;
-                    guard.remove(&snapshot_initiation_event.uuid).unwrap()
-                };
+                let payload = remove_pending_payload(
+                    &pending_persistence_snapshot_payloads_clone,
+                    &event_notification_clone,
+                    snapshot_initiation_event.uuid,
+                )
+                .await;
                 table.persist_iceberg_snapshot(payload);
             }
             MooncakeTableEvent::IcebergSnapshotCompletion(snapshot_completion_event) => {
@@ -652,11 +672,12 @@ pub(crate) async fn replay(replay_filepath: &str) {
             // =====================
             MooncakeTableEvent::IndexMergeInitiation(index_merge_initiation_event) => {
                 assert!(ongoing_index_merge_id.insert(index_merge_initiation_event.uuid));
-                let payload = {
-                    let mut guard = pending_index_merge_payloads_clone.lock().await;
-
-                    guard.remove(&index_merge_initiation_event.uuid).unwrap()
-                };
+                let payload = remove_pending_payload(
+                    &pending_index_merge_payloads_clone,
+                    &event_notification_clone,
+                    index_merge_initiation_event.uuid,
+                )
+                .await;
                 table.perform_index_merge(payload);
             }
             MooncakeTableEvent::IndexMergeCompletion(index_merge_completion_event) => {
@@ -679,13 +700,12 @@ pub(crate) async fn replay(replay_filepath: &str) {
             // =====================
             MooncakeTableEvent::DataCompactionInitiation(data_compaction_initiation_event) => {
                 assert!(ongoing_data_compaction_id.insert(data_compaction_initiation_event.uuid));
-                let payload = {
-                    let mut guard = pending_data_compaction_payloads_clone.lock().await;
-
-                    guard
-                        .remove(&data_compaction_initiation_event.uuid)
-                        .unwrap()
-                };
+                let payload = remove_pending_payload(
+                    &pending_data_compaction_payloads_clone,
+                    &event_notification_clone,
+                    data_compaction_initiation_event.uuid,
+                )
+                .await;
                 table.perform_data_compaction(payload);
             }
             MooncakeTableEvent::DataCompactionCompletion(data_compaction_completion_event) => {
