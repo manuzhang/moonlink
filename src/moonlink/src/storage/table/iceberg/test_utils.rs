@@ -1,3 +1,5 @@
+use crate::storage::table::iceberg::compat;
+
 use arrow_array::RecordBatch;
 use iceberg::io::FileIO;
 use iceberg::Result as IcebergResult;
@@ -13,8 +15,13 @@ pub(crate) async fn load_arrow_batch(
     let input_file_metadata = input_file.metadata().await?;
     let reader = input_file.reader().await?;
     let bytes = reader.read(0..input_file_metadata.size).await?;
-    let builder = ParquetRecordBatchReaderBuilder::try_new(bytes)?;
-    let mut reader = builder.build()?;
-    let batch = reader.next().transpose()?.expect("Should have one batch");
+    let builder = ParquetRecordBatchReaderBuilder::try_new(bytes)
+        .map_err(compat::parquet_error_to_iceberg)?;
+    let mut reader = builder.build().map_err(compat::parquet_error_to_iceberg)?;
+    let batch = reader
+        .next()
+        .transpose()
+        .map_err(compat::arrow_error_to_iceberg)?
+        .expect("Should have one batch");
     Ok(batch)
 }

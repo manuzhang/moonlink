@@ -1,8 +1,7 @@
 use crate::storage::mooncake_table::TableMetadata as MooncakeTableMetadata;
+use crate::storage::table::iceberg::compat;
 use crate::storage::table::iceberg::iceberg_table_manager::*;
 use crate::Result;
-
-use iceberg::arrow as IcebergArrow;
 
 use std::sync::Arc;
 
@@ -15,7 +14,7 @@ impl IcebergTableManager {
         self.initialize_iceberg_table_for_once().await?;
 
         let table_ident = self.get_table_ident();
-        let new_schema = IcebergArrow::arrow_schema_to_schema(&updated_table_metadata.schema)?;
+        let new_schema = compat::arrow_schema_to_schema(updated_table_metadata.schema.as_ref())?;
         let updated_table = self
             .catalog
             .update_table_schema(new_schema, table_ident)

@@ -28,6 +28,7 @@ arrow-array = "58"
 arrow-buffer = "58"
 arrow-ipc = "58"
 arrow-schema = { version = "58", features = ["serde"] }
+arrow-schema-57 = { package = "arrow-schema", version = "57", features = ["serde"] }
 async-stream = "0.3"
 async-trait = "0.1"
 backon = "1.6"

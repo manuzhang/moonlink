@@ -1,6 +1,7 @@
 use crate::storage::table::common::MOONCAKE_TABLE_FLUSH_LSN;
 use crate::storage::table::iceberg::base_iceberg_snapshot_fetcher::BaseIcebergSnapshotFetcher;
 use crate::storage::table::iceberg::catalog_utils;
+use crate::storage::table::iceberg::compat;
 use crate::storage::table::iceberg::iceberg_table_config::IcebergTableConfig;
 use crate::storage::table::iceberg::moonlink_catalog::MoonlinkCatalog;
 use crate::storage::table::iceberg::utils;
@@ -8,7 +9,6 @@ use crate::Result;
 
 use arrow_schema::Schema as ArrowSchema;
 use async_trait::async_trait;
-use iceberg::arrow as IcebergArrow;
 
 #[allow(dead_code)]
 pub struct IcebergSnapshotFetcher {
@@ -36,7 +36,7 @@ impl BaseIcebergSnapshotFetcher for IcebergSnapshotFetcher {
         .await?;
         if let Some(table) = table {
             let iceberg_schema = table.metadata().current_schema();
-            let arrow_schema = IcebergArrow::schema_to_arrow_schema(iceberg_schema)?;
+            let arrow_schema = compat::schema_to_arrow_schema(iceberg_schema)?;
             return Ok(Some(arrow_schema));
         }
         Ok(None)

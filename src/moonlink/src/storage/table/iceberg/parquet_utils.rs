@@ -295,9 +295,9 @@ pub(crate) async fn get_data_file_from_local_parquet_file(
 mod tests {
     use super::*;
 
+    use crate::storage::table::iceberg::compat;
     use arrow::record_batch::RecordBatch;
     use arrow_array::{Int32Array, Int64Array};
-    use iceberg::arrow as IcebergArrow;
     use parquet::{arrow::AsyncArrowWriter, file::properties::WriterProperties};
     use tempfile::tempdir;
 
@@ -341,7 +341,7 @@ mod tests {
         let (parquet_metadata, file_size) = get_parquet_metadata(local_filepath.to_str().unwrap())
             .await
             .unwrap();
-        let iceberg_schema = IcebergArrow::arrow_schema_to_schema(&schema).unwrap();
+        let iceberg_schema = compat::arrow_schema_to_schema(&schema).unwrap();
         let mut data_file_builder = parquet_to_data_file_builder(
             Arc::new(iceberg_schema),
             Arc::new(parquet_metadata),

@@ -62,9 +62,9 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::storage::table::iceberg::compat::arrow_schema_to_schema;
 use arrow::datatypes::Schema as ArrowSchema;
 use arrow_array::{Int32Array, RecordBatch, StringArray};
-use iceberg::arrow::arrow_schema_to_schema;
 use iceberg::NamespaceIdent;
 use iceberg::TableIdent;
 use parquet::arrow::AsyncArrowWriter;
@@ -2228,7 +2228,8 @@ async fn test_small_batch_size_and_large_parquet_size() {
         append_only: false,
         batch_size: 1,
         disk_slice_writer_config: DiskSliceWriterConfig {
-            parquet_file_size: 1000,
+            // Keep both tiny batches in one data file despite Parquet writer metadata overhead.
+            parquet_file_size: DiskSliceWriterConfig::DEFAULT_DISK_SLICE_PARQUET_FILE_SIZE,
             chaos_config: None,
         },
         // Trigger iceberg snapshot as long as there're any commit deletion log.
