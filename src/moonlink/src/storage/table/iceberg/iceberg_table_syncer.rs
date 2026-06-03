@@ -739,6 +739,7 @@ impl IcebergTableManager {
         let old_data_files = take_data_files_to_remove(&mut snapshot_payload);
         let new_file_indices = take_file_indices_to_import(&mut snapshot_payload);
         let old_file_indices = take_file_indices_to_remove(&mut snapshot_payload);
+        #[cfg(any(test, debug_assertions))]
         let has_data_files_to_remove = !old_data_files.is_empty();
 
         // Validate data files to add and remove are valid.
