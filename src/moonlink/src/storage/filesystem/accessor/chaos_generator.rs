@@ -1,6 +1,6 @@
 use opendal::Result;
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 /// A chaos generator, which creates delay and error status based on config and random generator.
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};

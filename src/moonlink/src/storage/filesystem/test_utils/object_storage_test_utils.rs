@@ -5,7 +5,7 @@ pub(crate) const TEST_RETRY_COUNT: usize = 2;
 pub(crate) const TEST_RETRY_INIT_MILLISEC: u64 = 100;
 
 #[cfg(any(feature = "storage-gcs", feature = "storage-s3"))]
-use rand::Rng;
+use rand::RngExt;
 
 /// Get object storage bucket name from warehouse uri.
 pub(crate) fn get_bucket_from_warehouse_uri(warehouse_uri: &str) -> String {
