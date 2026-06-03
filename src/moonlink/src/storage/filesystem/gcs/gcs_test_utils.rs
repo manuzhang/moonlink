@@ -46,7 +46,13 @@ async fn create_gcs_bucket_impl(bucket: Arc<String>) -> IcebergResult<()> {
         .post(&url)
         .json(&serde_json::json!({ "name": *bucket }))
         .send()
-        .await?;
+        .await
+        .map_err(|e| {
+            IcebergError::new(
+                iceberg::ErrorKind::Unexpected,
+                format!("Failed to create bucket {bucket} in fake-gcs-server: {e}"),
+            )
+        })?;
     if res.status() != StatusCode::OK {
         return Err(IcebergError::new(
             iceberg::ErrorKind::Unexpected,

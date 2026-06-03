@@ -1,5 +1,5 @@
-use arrow::error::ArrowError;
 use bincode::error::DecodeError;
+use datafusion::arrow::error::ArrowError;
 use moonlink_error::{io_error_utils, ErrorStatus, ErrorStruct};
 use moonlink_rpc::Error as MoonlinkRPCError;
 use std::{panic::Location, sync::Arc};

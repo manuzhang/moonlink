@@ -864,6 +864,10 @@ mod tests {
             .unwrap();
 
         let lsn = current_wal_lsn(&new_client).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn)
+            .await
+            .unwrap();
 
         let ids = ids_from_state_with_deletes(
             &backend
