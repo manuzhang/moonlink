@@ -1,8 +1,8 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use moonlink::create_data_file;
 use moonlink::{GlobalIndex, GlobalIndexBuilder};
-use pprof::criterion::{Output, PProfProfiler};
 use rand::RngExt;
+use std::hint::black_box;
 use tokio::runtime::Runtime;
 
 fn bench_build_index(c: &mut Criterion) {
@@ -64,7 +64,7 @@ fn bench_index_query(c: &mut Criterion) {
 
 criterion_group! {
     name = benches;
-    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
+    config = Criterion::default();
     targets = bench_build_index, bench_index_query
 }
 criterion_main!(benches);
