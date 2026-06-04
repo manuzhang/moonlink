@@ -614,10 +614,12 @@ mod tests {
         let dp_attrs = vec![
             KeyValue {
                 key: "arr".into(),
+                key_strindex: 0,
                 value: Some(arr_any),
             },
             KeyValue {
                 key: "m".into(),
+                key_strindex: 0,
                 value: Some(kvlist_any),
             },
         ];
