@@ -2,7 +2,7 @@ use crate::storage::filesystem::accessor::base_filesystem_accessor::BaseFileSyst
 use crate::storage::filesystem::accessor::filesystem_accessor::FileSystemAccessor;
 use crate::storage::filesystem::accessor_config::AccessorConfig;
 
-use rand::Rng;
+use rand::RngExt;
 use tokio::io::AsyncWriteExt;
 
 /// Test util function to generate random string with the requested size.

@@ -7,7 +7,7 @@ use crate::storage::table::iceberg::glue_catalog::GlueCatalog;
 use crate::storage::table::iceberg::iceberg_table_config::GlueCatalogConfig;
 use crate::storage::table::iceberg::moonlink_catalog::CatalogAccess;
 use iceberg::{Catalog, NamespaceIdent, TableCreation, TableIdent};
-use rand::{distr::Alphanumeric, Rng};
+use rand::distr::{Alphanumeric, SampleString};
 use std::collections::HashMap;
 
 /// Test AWS access id.
@@ -26,11 +26,8 @@ pub(crate) fn get_random_glue_catalog_name() -> String {
 
 /// Test util function to get a random string.
 fn get_random_string() -> String {
-    let rng = rand::rng();
-    rng.sample_iter(&Alphanumeric)
-        .take(10)
-        .map(char::from)
-        .collect()
+    let mut rng = rand::rng();
+    Alphanumeric.sample_string(&mut rng, 10)
 }
 
 /// Test util function to get a random namespace.

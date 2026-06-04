@@ -3,7 +3,7 @@ use crate::storage::table::iceberg::iceberg_table_config::RestCatalogConfig;
 use crate::{AccessorConfig, FsRetryConfig, FsTimeoutConfig, IcebergTableConfig, StorageConfig};
 use iceberg::spec::{NestedField, PrimitiveType, Schema, Type};
 use iceberg::TableCreation;
-use rand::{distr::Alphanumeric, Rng};
+use rand::distr::{Alphanumeric, SampleString};
 use std::collections::HashMap;
 use tempfile::TempDir;
 
@@ -11,11 +11,8 @@ const DEFAULT_REST_CATALOG_NAME: &str = "test";
 const DEFAULT_WAREHOUSE_PATH: &str = "/tmp/moonlink_iceberg";
 
 pub(crate) fn get_random_string() -> String {
-    let rng = rand::rng();
-    rng.sample_iter(&Alphanumeric)
-        .take(10)
-        .map(char::from)
-        .collect()
+    let mut rng = rand::rng();
+    Alphanumeric.sample_string(&mut rng, 10)
 }
 
 pub(crate) fn default_accessor_config() -> AccessorConfig {

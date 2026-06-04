@@ -7,7 +7,7 @@ mod tests {
     use crate::common::ids_from_state;
 
     use rand::rngs::StdRng;
-    use rand::{Rng, SeedableRng};
+    use rand::{RngExt, SeedableRng};
     use serial_test::serial;
 
     use std::time::UNIX_EPOCH;

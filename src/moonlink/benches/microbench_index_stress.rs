@@ -2,7 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use moonlink::create_data_file;
 use moonlink::{GlobalIndex, GlobalIndexBuilder};
 use pprof::criterion::{Output, PProfProfiler};
-use rand::Rng;
+use rand::RngExt;
 use tokio::runtime::Runtime;
 
 fn bench_build_index(c: &mut Criterion) {
