@@ -9,6 +9,7 @@ use opentelemetry_proto::tonic::resource::v1::Resource;
 pub(crate) fn kv_str(key: &str, val: &str) -> KeyValue {
     KeyValue {
         key: key.to_string(),
+        key_strindex: 0,
         value: Some(AnyValue {
             value: Some(any_value::Value::StringValue(val.to_string())),
         }),
@@ -17,6 +18,7 @@ pub(crate) fn kv_str(key: &str, val: &str) -> KeyValue {
 pub(crate) fn kv_bool(key: &str, val: bool) -> KeyValue {
     KeyValue {
         key: key.to_string(),
+        key_strindex: 0,
         value: Some(AnyValue {
             value: Some(any_value::Value::BoolValue(val)),
         }),
@@ -25,6 +27,7 @@ pub(crate) fn kv_bool(key: &str, val: bool) -> KeyValue {
 pub(crate) fn kv_i64(key: &str, val: i64) -> KeyValue {
     KeyValue {
         key: key.to_string(),
+        key_strindex: 0,
         value: Some(AnyValue {
             value: Some(any_value::Value::IntValue(val)),
         }),
