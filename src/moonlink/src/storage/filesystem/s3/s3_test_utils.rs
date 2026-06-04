@@ -11,7 +11,7 @@ use std::time::Duration;
 use base64::engine::general_purpose::STANDARD as base64;
 use base64::Engine;
 use chrono::Utc;
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use iceberg::{Error as IcebergError, Result as IcebergResult};
 use sha1::Sha1;
 
