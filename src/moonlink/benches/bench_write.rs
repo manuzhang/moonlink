@@ -5,7 +5,6 @@ use moonlink::{
     AccessorConfig, FileSystemAccessor, IcebergTableConfig, MooncakeTable, MooncakeTableConfig,
     ObjectStorageCache, StorageConfig, WalConfig, WalManager,
 };
-use pprof::criterion::{Output, PProfProfiler};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tempfile::tempdir;
@@ -262,7 +261,7 @@ fn bench_write(c: &mut Criterion) {
 
 criterion_group! {
     name = benches;
-    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
+    config = Criterion::default();
     targets = bench_write
 }
 criterion_main!(benches);

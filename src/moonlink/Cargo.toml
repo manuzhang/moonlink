@@ -84,7 +84,7 @@ opentelemetry = { workspace = true }
 opentelemetry-otlp = { workspace = true }
 opentelemetry_sdk = { workspace = true }
 parquet = { workspace = true }
-pprof = { version = "0.15", features = ["flamegraph", "criterion"], optional = true }
+pprof = { version = "0.15", features = ["flamegraph"], optional = true }
 prost = { workspace = true }
 rand = { workspace = true }
 reqwest = { workspace = true }
@@ -103,7 +103,7 @@ url = { workspace = true }
 uuid = { workspace = true }
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "0.8"
 mockall = "0.14"
 pico-args = "0.5"
 rand = { workspace = true }

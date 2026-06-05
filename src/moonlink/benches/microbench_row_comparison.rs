@@ -1,10 +1,11 @@
 use arrow::array::{BooleanArray, Float64Array, Int64Array, StringArray};
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use moonlink::row::{IdentityProp, MoonlinkRow, RowValue};
 use parquet::arrow::AsyncArrowWriter;
 use std::collections::HashMap;
+use std::hint::black_box;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 
