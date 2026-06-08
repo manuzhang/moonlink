@@ -37,6 +37,10 @@ mod tests {
             .await
             .unwrap();
         let lsn1 = current_wal_lsn(&client).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn1)
+            .await
+            .unwrap();
         let ids = nonunique_ids_from_state(
             &backend
                 .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn1))
@@ -57,7 +61,10 @@ mod tests {
             .unwrap();
         let lsn2 = current_wal_lsn(&client).await;
 
-        // Wait until WAL flush reaches lsn2, then verify rows once
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn2)
+            .await
+            .unwrap();
         let ids = nonunique_ids_from_state(
             &backend
                 .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn2))
@@ -83,6 +90,10 @@ mod tests {
             .await
             .unwrap();
         let lsn1 = current_wal_lsn(&client).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn1)
+            .await
+            .unwrap();
         let ids = nonunique_ids_from_state(
             &backend
                 .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn1))
@@ -107,6 +118,10 @@ mod tests {
             .await
             .unwrap();
         let lsn2 = current_wal_lsn(&client).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn2)
+            .await
+            .unwrap();
 
         let expected_len = 100001usize;
         let ids = nonunique_ids_from_state(
@@ -154,16 +169,25 @@ mod tests {
             .simple_query("INSERT INTO reconnect_multi_a VALUES (1,'a1'),(2,'a2');")
             .await
             .unwrap();
+        let lsn_a1 = current_wal_lsn(&client).await;
         client
             .simple_query("INSERT INTO reconnect_multi_b VALUES (10,'b1'),(20,'b2');")
             .await
             .unwrap();
-        let lsn1 = current_wal_lsn(&client).await;
+        let lsn_b1 = current_wal_lsn(&client).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn_a1)
+            .await
+            .unwrap();
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), table_b.clone(), lsn_b1)
+            .await
+            .unwrap();
 
         // Verify baseline visible on both
         let ids_a = nonunique_ids_from_state(
             &backend
-                .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn1))
+                .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn_a1))
                 .await
                 .unwrap(),
         );
@@ -174,7 +198,7 @@ mod tests {
         assert_eq!(keys_a, vec![1, 2]);
         let ids_b = nonunique_ids_from_state(
             &backend
-                .scan_table(DATABASE.to_string(), table_b.clone(), Some(lsn1))
+                .scan_table(DATABASE.to_string(), table_b.clone(), Some(lsn_b1))
                 .await
                 .unwrap(),
         );
@@ -192,19 +216,25 @@ mod tests {
             .simple_query("INSERT INTO reconnect_multi_a VALUES (3,'a3'),(4,'a4');")
             .await
             .unwrap();
+        let lsn_a2 = current_wal_lsn(&client).await;
         client
             .simple_query("INSERT INTO reconnect_multi_b VALUES (30,'b3'),(40,'b4');")
             .await
             .unwrap();
-        let lsn2 = current_wal_lsn(&client).await;
+        let lsn_b2 = current_wal_lsn(&client).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn_a2)
+            .await
+            .unwrap();
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), table_b.clone(), lsn_b2)
+            .await
+            .unwrap();
 
-        // sleep for 1 second
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-
-        // Verify both tables include all rows up to lsn2
+        // Verify both tables include all rows up to their own latest LSNs
         let ids_a = nonunique_ids_from_state(
             &backend
-                .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn2))
+                .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn_a2))
                 .await
                 .unwrap(),
         );
@@ -216,7 +246,7 @@ mod tests {
         // vec of i64
         let ids_b = nonunique_ids_from_state(
             &backend
-                .scan_table(DATABASE.to_string(), table_b, Some(lsn2))
+                .scan_table(DATABASE.to_string(), table_b, Some(lsn_b2))
                 .await
                 .unwrap(),
         );
@@ -275,6 +305,10 @@ mod tests {
 
         // Read up to current LSN and verify no duplicates for 1..=total.
         let lsn = current_wal_lsn(&client2).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn)
+            .await
+            .unwrap();
         let ids = nonunique_ids_from_state(
             &backend
                 .scan_table(DATABASE.to_string(), TABLE.to_string(), Some(lsn))
@@ -319,6 +353,10 @@ mod tests {
         // Commit after disconnect; reconnect should resume and apply once
         tx.commit().await.unwrap();
         let lsn = current_wal_lsn(&client).await;
+        backend
+            .wait_for_wal_flush(DATABASE.to_string(), TABLE.to_string(), lsn)
+            .await
+            .unwrap();
 
         // Verify all rows 1..=total appear exactly once
         let ids = nonunique_ids_from_state(
