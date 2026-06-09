@@ -37,6 +37,7 @@ ignore = [
     "RUSTSEC-2026-0098", # rustls-webpki 0.101.x via aws-smithy legacy optional feature
     "RUSTSEC-2026-0099", # rustls-webpki 0.101.x via aws-smithy legacy optional feature
     "RUSTSEC-2026-0104", # rustls-webpki 0.101.x via aws-smithy legacy optional feature
+    "RUSTSEC-2026-0173", # proc-macro-error2 - unmaintained, transitive via deltalake
 ]
 
 # TODO(hjiang): Resolve all duplicate dependencies.

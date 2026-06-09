@@ -44,7 +44,7 @@ impl IcebergTableManager {
         file_io: &FileIO,
         next_file_id: &mut u64,
     ) -> IcebergResult<Option<MooncakeFileIndex>> {
-        if !utils::is_file_index(entry) {
+        if !entry.is_alive() || !utils::is_file_index(entry) {
             return Ok(None);
         }
 
@@ -77,7 +77,7 @@ impl IcebergTableManager {
         entry: &ManifestEntry,
         next_file_id: &mut u64,
     ) -> IcebergResult<()> {
-        if !utils::is_data_file_entry(entry) {
+        if !entry.is_alive() || !utils::is_data_file_entry(entry) {
             return Ok(());
         }
 
@@ -107,7 +107,7 @@ impl IcebergTableManager {
         next_file_id: &mut u64,
     ) -> IcebergResult<Option<(FileId, PuffinBlobRef)>> {
         // Skip data files and file indices.
-        if !utils::is_deletion_vector_entry(entry) {
+        if !entry.is_alive() || !utils::is_deletion_vector_entry(entry) {
             return Ok(None);
         }
 
