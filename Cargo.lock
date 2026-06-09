@@ -187,30 +187,6 @@ checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
 
 [[package]]
 name = "apache-avro"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a033b4ced7c585199fb78ef50fca7fe2f444369ec48080c5fd072efa1a03cc7"
-dependencies = [
- "bigdecimal",
- "bon",
- "digest 0.10.7",
- "log",
- "miniz_oxide",
- "num-bigint",
- "quad-rand",
- "rand 0.9.4",
- "regex-lite",
- "serde",
- "serde_bytes",
- "serde_json",
- "strum 0.27.2",
- "strum_macros 0.27.2",
- "thiserror",
- "uuid",
-]
-
-[[package]]
-name = "apache-avro"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36fa98bc79671c7981272d91a8753a928ff6a1cd8e4f20a44c45bd5d313840bf"
@@ -2402,7 +2378,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d72a11ca44a95e1081870d3abb80c717496e8a7acb467a1d3e932bb636af5cc2"
 dependencies = [
  "ahash",
- "apache-avro 0.21.0",
+ "apache-avro",
  "arrow 58.3.0",
  "arrow-ipc 58.3.0",
  "chrono",
@@ -2498,7 +2474,7 @@ version = "53.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a579c3bd290c66ea4b269493e75e8a3ed42c9c895a651f10210a29538aee50c4"
 dependencies = [
- "apache-avro 0.21.0",
+ "apache-avro",
  "arrow 58.3.0",
  "async-trait",
  "bytes",
@@ -4207,7 +4183,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4d9c3fc1f55c84ff64645c0d2ee35159f5574d33f729fc0860783bc247c8b8c5"
 dependencies = [
  "anyhow",
- "apache-avro 0.21.0",
+ "apache-avro",
  "array-init",
  "arrow-arith 57.3.1",
  "arrow-array 57.3.1",
@@ -5113,7 +5089,7 @@ dependencies = [
 name = "moonlink_backend"
 version = "0.0.1"
 dependencies = [
- "apache-avro 0.20.0",
+ "apache-avro",
  "arrow 57.3.1",
  "arrow-array 57.3.1",
  "arrow-schema 57.3.1",
@@ -5148,7 +5124,7 @@ name = "moonlink_connectors"
 version = "0.0.1"
 dependencies = [
  "anyhow",
- "apache-avro 0.20.0",
+ "apache-avro",
  "arrow 57.3.1",
  "arrow-array 57.3.1",
  "arrow-schema 57.3.1",
@@ -5267,7 +5243,7 @@ name = "moonlink_service"
 version = "0.0.1"
 dependencies = [
  "anyhow",
- "apache-avro 0.20.0",
+ "apache-avro",
  "arrow 57.3.1",
  "arrow-array 57.3.1",
  "arrow-buffer 57.3.1",
