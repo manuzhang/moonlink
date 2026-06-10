@@ -24,10 +24,11 @@ pub(crate) fn parse_event_table_config(
     let mooncake_config = &mut table_config.mooncake_config;
 
     // If user provided config is invalid already, return error.
-    if mooncake_config.append_only.is_some() && mooncake_config.row_identity.is_some() {
-        let is_append_only = mooncake_config.append_only.unwrap();
-        let is_none_identity =
-            *mooncake_config.row_identity.as_ref().unwrap() == IdentityProp::None;
+    if let (Some(is_append_only), Some(row_identity)) = (
+        mooncake_config.append_only,
+        mooncake_config.row_identity.as_ref(),
+    ) {
+        let is_none_identity = *row_identity == IdentityProp::None;
         if is_append_only != is_none_identity {
             return Err(Error::invalid_config(
                 "Append only table shouldn't have identity property".to_string(),
@@ -36,13 +37,12 @@ pub(crate) fn parse_event_table_config(
     }
 
     // If part of the table properties is unassigned, backfill with default value.
-    if mooncake_config.append_only.is_some()
-        && mooncake_config.append_only.unwrap()
-        && mooncake_config.row_identity.is_none()
-    {
+    if mooncake_config.append_only == Some(true) && mooncake_config.row_identity.is_none() {
         mooncake_config.row_identity = Some(IdentityProp::None);
-    } else if mooncake_config.row_identity.is_some()
-        && *mooncake_config.row_identity.as_ref().unwrap() == IdentityProp::None
+    } else if mooncake_config
+        .row_identity
+        .as_ref()
+        .is_some_and(|row_identity| *row_identity == IdentityProp::None)
         && mooncake_config.append_only.is_none()
     {
         mooncake_config.append_only = Some(true);

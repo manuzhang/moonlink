@@ -557,8 +557,10 @@ impl SnapshotTableState {
         // Assert and update flush LSN.
         if let Some(new_flush_lsn) = task.new_flush_lsn {
             // Assert flush LSN doesn't regress, if not force snapshot.
-            if self.current_snapshot.flush_lsn.is_some() && !opt.force_create {
-                ma::assert_lt!(self.current_snapshot.flush_lsn.unwrap(), new_flush_lsn);
+            if !opt.force_create {
+                if let Some(current_flush_lsn) = self.current_snapshot.flush_lsn {
+                    ma::assert_lt!(current_flush_lsn, new_flush_lsn);
+                }
             }
             // Update flush LSN.
             self.current_snapshot.flush_lsn = Some(new_flush_lsn);
@@ -833,21 +835,18 @@ impl SnapshotTableState {
             let mut processed_deletions = Vec::new();
             assert_eq!(deletions.len(), 1);
             let deletion = deletions.first().unwrap();
-            if deletion.row_identity.is_none() {
-                let candidate = candidates.pop();
-                if let Some(candidate) = candidate {
-                    processed_deletions.push(Self::build_processed_deletion(deletion, candidate));
-                }
-            } else {
+            if let Some(row_identity) = deletion.row_identity.as_ref() {
                 for loc in &candidates {
-                    if self
-                        .matches_identity(loc, deletion.row_identity.as_ref().unwrap())
-                        .await
-                    {
+                    if self.matches_identity(loc, row_identity).await {
                         processed_deletions
                             .push(Self::build_processed_deletion(deletion, loc.clone()));
                         break;
                     }
+                }
+            } else {
+                let candidate = candidates.pop();
+                if let Some(candidate) = candidate {
+                    processed_deletions.push(Self::build_processed_deletion(deletion, candidate));
                 }
             }
             return processed_deletions;
