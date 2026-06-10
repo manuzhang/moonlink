@@ -105,10 +105,9 @@ impl BatchDeletionVector {
     }
 
     pub(crate) fn is_deleted(&self, row_idx: usize) -> bool {
-        if self.deletion_vector.is_none() {
-            false
-        } else {
-            !bit_util::get_bit(self.deletion_vector.as_ref().unwrap(), row_idx)
+        match &self.deletion_vector {
+            Some(deletion_vector) => !bit_util::get_bit(deletion_vector, row_idx),
+            None => false,
         }
     }
 
