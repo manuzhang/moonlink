@@ -381,8 +381,17 @@ mod tests {
     use arrow::datatypes::DataType;
     use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
     use iceberg::arrow as IcebergArrow;
+    use iceberg::spec::Schema as IcebergSchema;
     use moonlink::row::RowValue;
     use std::str::FromStr;
+
+    fn arrow_schema_to_iceberg_schema(schema: &arrow_schema::Schema) -> IcebergSchema {
+        let iceberg_arrow_schema = serde_json::from_value::<arrow_schema_57::Schema>(
+            serde_json::to_value(schema).unwrap(),
+        )
+        .unwrap();
+        IcebergArrow::arrow_schema_to_schema(&iceberg_arrow_schema).unwrap()
+    }
 
     #[test]
     fn test_table_schema_to_arrow_schema() {
@@ -730,7 +739,7 @@ mod tests {
         assert_eq!(identity, IdentityProp::Keys(vec![17]));
 
         // Convert Arrow schema to Iceberg schema and check field id/name mapping.
-        let iceberg_arrow = IcebergArrow::arrow_schema_to_schema(&arrow_schema).unwrap();
+        let iceberg_arrow = arrow_schema_to_iceberg_schema(&arrow_schema);
         for (field_id, expected_name) in [
             (0, "bool_field"),
             (1, "int2_field"),

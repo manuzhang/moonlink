@@ -220,11 +220,11 @@ mod tests {
     use crate::storage::mooncake_table::table_creation_test_utils::create_test_arrow_schema;
     use crate::storage::mooncake_table::test_utils_commons::ICEBERG_TEST_NAMESPACE;
     use crate::storage::mooncake_table::test_utils_commons::ICEBERG_TEST_TABLE;
+    use crate::storage::table::iceberg::compat;
     use crate::storage::table::iceberg::file_catalog::FileCatalog;
     use crate::FsRetryConfig;
     use crate::FsTimeoutConfig;
 
-    use iceberg::arrow as IcebergArrow;
     use iceberg::Catalog;
     use iceberg::NamespaceIdent;
     use iceberg::TableCreation;
@@ -233,7 +233,7 @@ mod tests {
     async fn test_filepath_generation() {
         let temp_dir = tempfile::tempdir().unwrap();
         let arrow_schema: std::sync::Arc<arrow_schema::Schema> = create_test_arrow_schema();
-        let iceberg_schema = IcebergArrow::arrow_schema_to_schema(arrow_schema.as_ref()).unwrap();
+        let iceberg_schema = compat::arrow_schema_to_schema(arrow_schema.as_ref()).unwrap();
         let accessor_config = AccessorConfig {
             storage_config: StorageConfig::FileSystem {
                 root_directory: temp_dir.path().to_str().unwrap().to_string(),

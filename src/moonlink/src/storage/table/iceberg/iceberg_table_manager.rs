@@ -13,6 +13,7 @@ use crate::storage::table::common::table_manager::{
     PersistenceFileParams, PersistenceResult, TableManager,
 };
 use crate::storage::table::iceberg::catalog_utils;
+use crate::storage::table::iceberg::compat;
 use crate::storage::table::iceberg::moonlink_catalog::MoonlinkCatalog;
 use crate::storage::table::iceberg::utils;
 use crate::IcebergTableConfig;
@@ -86,7 +87,7 @@ impl IcebergTableManager {
         config: IcebergTableConfig,
     ) -> IcebergResult<IcebergTableManager> {
         let iceberg_schema =
-            iceberg::arrow::arrow_schema_to_schema(mooncake_table_metadata.schema.as_ref())?;
+            compat::arrow_schema_to_schema(mooncake_table_metadata.schema.as_ref())?;
         let catalog = catalog_utils::create_catalog(config.clone(), iceberg_schema).await?;
         let mooncake_table_id = mooncake_table_metadata.mooncake_table_id.clone();
         Ok(Self {
@@ -112,7 +113,7 @@ impl IcebergTableManager {
         config: IcebergTableConfig,
     ) -> IcebergResult<IcebergTableManager> {
         let iceberg_schema =
-            iceberg::arrow::arrow_schema_to_schema(mooncake_table_metadata.schema.as_ref())?;
+            compat::arrow_schema_to_schema(mooncake_table_metadata.schema.as_ref())?;
         let catalog = catalog_utils::create_catalog_with_filesystem_accessor(
             filesystem_accessor.clone(),
             iceberg_schema,

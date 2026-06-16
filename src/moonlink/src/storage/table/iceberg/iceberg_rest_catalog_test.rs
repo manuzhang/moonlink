@@ -4,6 +4,7 @@ use crate::storage::mooncake_table::table_creation_test_utils::*;
 use crate::storage::mooncake_table::table_operation_test_utils::*;
 use crate::storage::table::common::table_manager::TableManager;
 use crate::storage::table::iceberg::catalog_test_utils::create_test_table_schema;
+use crate::storage::table::iceberg::compat::arrow_schema_to_schema;
 use crate::storage::table::iceberg::iceberg_table_config::IcebergTableConfig;
 use crate::storage::table::iceberg::iceberg_table_manager::IcebergTableManager;
 use crate::storage::table::iceberg::rest_catalog::RestCatalog;
@@ -11,7 +12,6 @@ use crate::storage::table::iceberg::rest_catalog_test_utils::*;
 use crate::storage::table::iceberg::schema_utils::assert_is_same_schema;
 use crate::IcebergCatalogConfig;
 
-use iceberg::arrow::arrow_schema_to_schema;
 use iceberg::Catalog;
 use iceberg::NamespaceIdent;
 use iceberg::TableIdent;

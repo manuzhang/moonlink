@@ -1,10 +1,10 @@
+use crate::storage::table::iceberg::compat;
 use crate::storage::table::iceberg::moonlink_catalog::MoonlinkCatalog;
 use crate::storage::table::iceberg::table_property;
 
 use std::collections::HashMap;
 
 use arrow_schema::Schema as ArrowSchema;
-use iceberg::arrow as IcebergArrow;
 use iceberg::spec::{DataContentType, DataFileFormat, ManifestEntry};
 use iceberg::table::Table as IcebergTable;
 use iceberg::writer::file_writer::location_generator::DefaultLocationGenerator;
@@ -69,7 +69,7 @@ async fn create_iceberg_table<C: MoonlinkCatalog + ?Sized>(
             .await?;
     }
 
-    let iceberg_schema = IcebergArrow::arrow_schema_to_schema(arrow_schema)?;
+    let iceberg_schema = compat::arrow_schema_to_schema(arrow_schema)?;
     let tbl_creation = TableCreation::builder()
         .name(table_name.to_string())
         .location(format!(

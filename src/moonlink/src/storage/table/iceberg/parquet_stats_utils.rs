@@ -17,6 +17,8 @@
 
 // Code adapted from iceberg-rust: https://github.com/apache/iceberg-rust
 
+use crate::storage::table::iceberg::compat;
+
 use iceberg::spec::{Datum, PrimitiveType, SchemaRef, Type};
 use iceberg::Result as IcebergResult;
 use iceberg::{Error, ErrorKind};
@@ -106,7 +108,9 @@ pub(crate) fn get_parquet_stat_min_as_datum(
                 return Ok(None);
             };
 
-            Some(Datum::string(val.as_utf8()?))
+            Some(Datum::string(
+                val.as_utf8().map_err(compat::parquet_error_to_iceberg)?,
+            ))
         }
         (
             PrimitiveType::Decimal {
@@ -258,7 +262,9 @@ pub(crate) fn get_parquet_stat_max_as_datum(
                 return Ok(None);
             };
 
-            Some(Datum::string(val.as_utf8()?))
+            Some(Datum::string(
+                val.as_utf8().map_err(compat::parquet_error_to_iceberg)?,
+            ))
         }
         (
             PrimitiveType::Decimal {

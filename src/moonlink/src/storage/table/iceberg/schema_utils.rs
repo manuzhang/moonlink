@@ -26,11 +26,11 @@ pub(crate) fn assert_table_schema_consistent(
     table: &IcebergTable,
     mooncake_table_metadata: &MooncakeTableMetadata,
 ) {
-    use iceberg::arrow as IcebergArrow;
-
     let iceberg_schema_1 = table.metadata().current_schema();
-    let iceberg_schema_2 =
-        IcebergArrow::arrow_schema_to_schema(mooncake_table_metadata.schema.as_ref()).unwrap();
+    let iceberg_schema_2 = crate::storage::table::iceberg::compat::arrow_schema_to_schema(
+        mooncake_table_metadata.schema.as_ref(),
+    )
+    .unwrap();
     assert_is_same_schema(iceberg_schema_1.as_ref().clone(), iceberg_schema_2);
 }
 
