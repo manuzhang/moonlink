@@ -28,7 +28,7 @@ jobs:
     name: Format & Clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -78,7 +78,7 @@ jobs:
             cmd: |
               RUST_BACKTRACE=1 cargo test test_gcs_chaos --features=chaos-test,storage-gcs -p moonlink -- --nocapture
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -159,7 +159,7 @@ jobs:
               RUST_BACKTRACE=1 cargo test storage::filesystem::accessor -p moonlink --features=chaos-test
               RUST_BACKTRACE=1 cargo test test_s3_chaos --features=chaos-test,storage-s3 -p moonlink -- --nocapture
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -241,7 +241,7 @@ jobs:
             cmd: |
               RUST_BACKTRACE=1 cargo test -p moonlink --features=catalog-glue,storage-s3
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -329,7 +329,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # ────────────────────── Toolchain + Test Tools ─────────────────────────
       - uses: dtolnay/rust-toolchain@stable
@@ -366,7 +366,7 @@ jobs:
             cmd: |
               RUST_BACKTRACE=1 cargo test --lib --features=catalog-rest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -426,7 +426,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # ────────────────────── Toolchain + Test Tools ─────────────────────────
       - uses: dtolnay/rust-toolchain@stable
@@ -488,7 +488,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -523,7 +523,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -558,7 +558,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -593,7 +593,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -628,7 +628,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -663,7 +663,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -697,7 +697,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -722,7 +722,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -772,7 +772,7 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
@@ -868,7 +868,7 @@ jobs:
             command: RUST_BACKTRACE=1 cargo test stress_test --release --package moonlink_service --lib --features standalone-test,stress-test -- --nocapture
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         id: toolchain
