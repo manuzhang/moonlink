@@ -42,3 +42,7 @@ updates:
         patterns:
           - "arrow*"
           - "parquet"
+      datafusion:
+        applies-to: version-updates
+        patterns:
+          - "datafusion*"
