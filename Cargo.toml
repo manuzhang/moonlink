@@ -49,7 +49,7 @@ iceberg = { version = "0.9.1", default-features = false }
 iceberg-catalog-glue = { version = "0.9.1" }
 iceberg-catalog-rest = { version = "0.9.1" }
 iceberg-storage-opendal = { version = "0.9.1", default-features = false }
-itertools = "0.14"
+itertools = "0.15"
 lru = "0.18"
 moka = { version = "0.12", features = ["future"] }
 moonlink = { path = "src/moonlink" }
