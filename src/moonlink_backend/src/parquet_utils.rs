@@ -6,9 +6,6 @@ use std::io::SeekFrom;
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncSeekExt;
 
-#[cfg(test)]
-use parquet::file::metadata::ParquetMetaData;
-
 /// Parquet file footer size.
 const FOOTER_SIZE: u64 = 8;
 /// Parquet file magic bytes ("PAR1").
@@ -62,17 +59,31 @@ pub(crate) async fn get_parquet_serialized_metadata(filepath: &str) -> Result<Ve
 }
 
 #[cfg(test)]
-pub(crate) fn deserialize_parquet_metadata(bytes: &[u8]) -> ParquetMetaData {
-    use parquet::file::metadata::ParquetMetaDataReader;
+pub(crate) fn deserialize_parquet_metadata(
+    bytes: &[u8],
+) -> parquet::file::metadata::ParquetMetaData {
+    use bytes::Bytes;
+    use parquet::file::metadata::{PageIndexPolicy, ParquetMetaDataPushDecoder};
+    use parquet::DecodeResult;
 
-    let mut parquet_bytes = Vec::with_capacity(bytes.len() + FOOTER_SIZE as usize);
-    parquet_bytes.extend_from_slice(bytes);
-    parquet_bytes.extend_from_slice(&(bytes.len() as u32).to_le_bytes());
-    parquet_bytes.extend_from_slice(PARQUET_MAGIC);
+    let metadata_len: u32 = bytes.len().try_into().unwrap();
+    let file_len = bytes.len() as u64 + FOOTER_SIZE;
+    let mut metadata_with_footer = Vec::with_capacity(bytes.len() + FOOTER_SIZE as usize);
+    metadata_with_footer.extend_from_slice(bytes);
+    metadata_with_footer.extend_from_slice(&metadata_len.to_le_bytes());
+    metadata_with_footer.extend_from_slice(PARQUET_MAGIC);
 
-    ParquetMetaDataReader::new()
-        .parse_and_finish(&bytes::Bytes::from(parquet_bytes))
+    let mut decoder = ParquetMetaDataPushDecoder::try_new(file_len)
         .unwrap()
+        .with_page_index_policy(PageIndexPolicy::Skip);
+    decoder
+        .push_range(0..file_len, Bytes::from(metadata_with_footer))
+        .unwrap();
+
+    match decoder.try_decode().unwrap() {
+        DecodeResult::Data(metadata) => metadata,
+        other => panic!("expected parquet metadata, got {other:?}"),
+    }
 }
 
 #[cfg(test)]
@@ -85,6 +96,19 @@ mod tests {
     use parquet::arrow::arrow_writer::ArrowWriter;
     use parquet::file::statistics::Statistics;
     use tempfile::tempdir;
+
+    // Util function to get min and max.
+    fn stats_min_max_i32(stats: &Statistics) -> Option<(i32, i32)> {
+        let min_bytes = stats.min_bytes_opt()?;
+        let max_bytes = stats.max_bytes_opt()?;
+
+        if min_bytes.len() != 4 || max_bytes.len() != 4 {
+            return None;
+        }
+        let min = i32::from_le_bytes([min_bytes[0], min_bytes[1], min_bytes[2], min_bytes[3]]);
+        let max = i32::from_le_bytes([max_bytes[0], max_bytes[1], max_bytes[2], max_bytes[3]]);
+        Some((min, max))
+    }
 
     #[tokio::test]
     async fn test_get_parquet_serialized_metadata_basic_stats() {
@@ -109,22 +133,18 @@ mod tests {
         let buf = get_parquet_serialized_metadata(&parquet_path)
             .await
             .unwrap();
-        let parquet_md = deserialize_parquet_metadata(&buf[..]);
-        let file_md = parquet_md.file_metadata();
+        let file_md = deserialize_parquet_metadata(&buf[..]);
 
-        assert_eq!(file_md.num_rows(), 5);
-        assert_eq!(parquet_md.num_row_groups(), 1);
-        let rg = parquet_md.row_group(0);
-        assert_eq!(rg.columns().len(), 1);
-        let stats = rg.columns()[0].statistics().unwrap();
+        assert_eq!(file_md.file_metadata().num_rows(), 5);
+        assert_eq!(file_md.num_row_groups(), 1);
+        let rg = file_md.row_group(0);
+        assert_eq!(rg.num_columns(), 1);
+        let col = rg.column(0);
+        let stats = col.statistics().unwrap();
         assert_eq!(stats.null_count_opt(), Some(1));
 
-        match stats {
-            Statistics::Int32(stats) => {
-                assert_eq!(stats.min_opt(), Some(&1));
-                assert_eq!(stats.max_opt(), Some(&5));
-            }
-            other => panic!("expected int32 statistics, got {other:?}"),
-        }
+        let (min, max) = stats_min_max_i32(stats).unwrap();
+        assert_eq!(min, 1);
+        assert_eq!(max, 5);
     }
 }
