@@ -26,7 +26,6 @@ use datafusion::physical_plan::ExecutionPlan;
 use moonlink_rpc::{get_table_schema, scan_table_begin, scan_table_end};
 use moonlink_table_metadata::{DeletionVector, MooncakeTableMetadata, PositionDelete};
 use roaring::RoaringTreemap;
-use std::any::Any;
 use std::sync::Arc;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncSeekExt, SeekFrom};
@@ -59,10 +58,6 @@ impl MooncakeTableProvider {
 
 #[async_trait]
 impl TableProvider for MooncakeTableProvider {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn schema(&self) -> SchemaRef {
         Arc::clone(&self.schema)
     }
@@ -165,7 +160,7 @@ impl TableProvider for MooncakeTableProvider {
                 }
                 access_plan.scan_selection(row_group_number, RowSelection::from(selectors));
             }
-            let file = PartitionedFile::new(data_file, size).with_extensions(Arc::new(access_plan));
+            let file = PartitionedFile::new(data_file, size).with_extension(Arc::new(access_plan));
             config_builder = config_builder.with_file(file);
         }
         Ok(DataSourceExec::from_data_source(config_builder.build()))
