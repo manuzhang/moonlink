@@ -5017,6 +5017,7 @@ dependencies = [
  "arrow",
  "arrow-array 58.3.0",
  "arrow-schema 58.3.0",
+ "bytes",
  "futures",
  "iceberg",
  "moonlink",
