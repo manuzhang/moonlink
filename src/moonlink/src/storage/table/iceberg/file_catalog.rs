@@ -642,22 +642,24 @@ impl Catalog for FileCatalog {
             let etag = guard.borrow().as_ref().cloned();
             etag
         };
-        let object_metadata = self
-            .filesystem_accessor
-            .conditional_write_object(
-                &version_hint_path,
-                format!("{version}").as_bytes().to_vec(),
-                etag,
+        let version_hint = format!("{version}").as_bytes().to_vec();
+        let object_metadata = if etag.is_some() {
+            self.filesystem_accessor
+                .conditional_write_object(&version_hint_path, version_hint, etag)
+                .await
+        } else {
+            self.filesystem_accessor
+                .write_object(&version_hint_path, version_hint)
+                .await
+        }
+        .map_err(|e| {
+            IcebergError::new(
+                iceberg::ErrorKind::Unexpected,
+                format!("Failed to write version hint file {version_hint_path}"),
             )
-            .await
-            .map_err(|e| {
-                IcebergError::new(
-                    iceberg::ErrorKind::Unexpected,
-                    format!("Failed to write version hint file existence {version_hint_path}"),
-                )
-                .with_retryable(true)
-                .with_source(e)
-            })?;
+            .with_retryable(true)
+            .with_source(e)
+        })?;
         {
             let guard = self.etag.lock().await;
             *guard.borrow_mut() = object_metadata.etag().map(|etag| etag.to_string());
