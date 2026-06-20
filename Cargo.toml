@@ -92,6 +92,8 @@ parquet = { version = "59", default-features = false, features = [
   "arrow",
   "async",
   "arrow_canonical_extension_types",
+  "snap",
+  "zstd",
 ] }
 paste = "1"
 postgres-native-tls = { git = "https://github.com/Mooncake-labs/rust-postgres.git", rev = "14c8e599f5551a8caa96ff5023685a6f537a1455" }

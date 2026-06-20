@@ -6055,8 +6055,10 @@ dependencies = [
  "num-traits",
  "paste",
  "seq-macro",
+ "snap",
  "tokio",
  "twox-hash",
+ "zstd",
 ]
 
 [[package]]
