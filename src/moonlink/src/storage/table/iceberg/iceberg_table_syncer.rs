@@ -740,8 +740,7 @@ impl IcebergTableManager {
         let new_file_indices = take_file_indices_to_import(&mut snapshot_payload);
         let old_file_indices = take_file_indices_to_remove(&mut snapshot_payload);
         #[cfg(any(test, debug_assertions))]
-        let rewrites_existing_manifest_entries =
-            !old_data_files.is_empty() || !old_file_indices.is_empty();
+        let removes_data_files = !old_data_files.is_empty();
 
         // Validate data files to add and remove are valid.
         self.validate_new_data_files(&new_data_files)?;
@@ -788,6 +787,13 @@ impl IcebergTableManager {
                 data_file_import_result.local_data_files_to_remote,
             )
             .await?;
+        #[cfg(any(test, debug_assertions))]
+        let rewrites_existing_manifest_entries = removes_data_files
+            || !old_file_indices.is_empty()
+            || !deletion_vectors_sync_result
+                .puffin_deletion_blobs
+                .is_empty()
+            || !remote_file_indices.is_empty();
 
         // Update snapshot summary properties.
         let snapshot_properties = HashMap::<String, String>::from([(
@@ -806,7 +812,9 @@ impl IcebergTableManager {
         #[cfg(any(test, debug_assertions))]
         {
             // Manifest rewrites are applied by Moonlink's catalog-side commit hook. Iceberg's
-            // duplicate validator runs before that rewrite and can reject replacement commits.
+            // duplicate validator runs before that rewrite and can reject commits that append
+            // data files while also rewriting manifest entries for removals, deletion vectors,
+            // or file indices.
             action = action.with_check_duplicate(!rewrites_existing_manifest_entries);
         }
 
