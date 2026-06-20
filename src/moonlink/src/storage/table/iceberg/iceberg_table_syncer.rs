@@ -740,7 +740,8 @@ impl IcebergTableManager {
         let new_file_indices = take_file_indices_to_import(&mut snapshot_payload);
         let old_file_indices = take_file_indices_to_remove(&mut snapshot_payload);
         #[cfg(any(test, debug_assertions))]
-        let has_data_files_to_remove = !old_data_files.is_empty();
+        let rewrites_existing_manifest_entries =
+            !old_data_files.is_empty() || !old_file_indices.is_empty();
 
         // Validate data files to add and remove are valid.
         self.validate_new_data_files(&new_data_files)?;
@@ -804,9 +805,9 @@ impl IcebergTableManager {
         }
         #[cfg(any(test, debug_assertions))]
         {
-            // Data-file removals are applied by Moonlink's catalog-side manifest rewrite. Iceberg's
+            // Manifest rewrites are applied by Moonlink's catalog-side commit hook. Iceberg's
             // duplicate validator runs before that rewrite and can reject replacement commits.
-            action = action.with_check_duplicate(!has_data_files_to_remove);
+            action = action.with_check_duplicate(!rewrites_existing_manifest_entries);
         }
 
         // Only start append action when there're new data files.
