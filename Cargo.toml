@@ -68,7 +68,12 @@ nix = { version = "0.31", default-features = false, features = ["fs"] }
 num-bigint = "0.4"
 num-traits = "0.2"
 object_store = "0.13"
-opendal = { version = "0.57", default-features = false, features = ["executors-tokio", "layers-throttle"] }
+opendal = { version = "0.57", default-features = false, features = [
+  "executors-tokio",
+  "layers-retry",
+  "layers-throttle",
+  "layers-timeout",
+] }
 opentelemetry = { version = "0.32", default-features = false, features = [
   "trace",
   "metrics",

@@ -5603,7 +5603,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96c9c85ce253ff87225e7669979d877a20c98a06604ec9d6dd5f4473e08f1ae1"
 dependencies = [
  "opendal-core",
+ "opendal-layer-retry",
  "opendal-layer-throttle",
+ "opendal-layer-timeout",
  "opendal-service-fs",
  "opendal-service-gcs",
  "opendal-service-s3",
@@ -5638,6 +5640,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "opendal-layer-retry"
+version = "0.57.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b2a25a718afb81fad81cb9a0580a1cb989221fa2317f888c6a37f8dad408eb7"
+dependencies = [
+ "backon",
+ "log",
+ "opendal-core",
+]
+
+[[package]]
 name = "opendal-layer-throttle"
 version = "0.57.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5645,6 +5658,16 @@ checksum = "20482fda00c9b808a8a56d1b64ce29a4a2cc259c2ef521a213ecb09396c269ff"
 dependencies = [
  "governor",
  "opendal-core",
+]
+
+[[package]]
+name = "opendal-layer-timeout"
+version = "0.57.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e91f731724c213af81e9d03517859c8fc47b4578e64ad61ae4f099f10fe36e3"
+dependencies = [
+ "opendal-core",
+ "tokio",
 ]
 
 [[package]]

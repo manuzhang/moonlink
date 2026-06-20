@@ -206,7 +206,10 @@ impl BaseFileSystemAccess for FileSystemAccessor {
         }
 
         if !sanitized_path.is_empty() && sanitized_path != "/" {
-            operator.remove_all(sanitized_path).await?;
+            operator
+                .delete_with(&sanitized_path)
+                .recursive(true)
+                .await?;
         }
 
         Ok(())
@@ -216,7 +219,7 @@ impl BaseFileSystemAccess for FileSystemAccessor {
     async fn remove_directory(&self, directory: &str) -> Result<()> {
         let sanitized_directory = self.sanitize_path(directory);
         let op = self.get_operator().await?.clone();
-        op.remove_all(sanitized_directory).await?;
+        op.delete_with(sanitized_directory).recursive(true).await?;
         Ok(())
     }
 
