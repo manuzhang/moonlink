@@ -206,10 +206,7 @@ impl BaseFileSystemAccess for FileSystemAccessor {
         }
 
         if !sanitized_path.is_empty() && sanitized_path != "/" {
-            operator
-                .delete_with(&sanitized_path)
-                .recursive(true)
-                .await?;
+            operator.delete_with(sanitized_path).recursive(true).await?;
         }
 
         Ok(())
