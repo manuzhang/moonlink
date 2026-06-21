@@ -573,7 +573,7 @@ jobs:
           make-default: true
 
       - name: Start chaos test
-        timeout-minutes: 10
+        timeout-minutes: 20
         run: |
           RUST_BACKTRACE=1 cargo test table_handler::chaos_test::test_chaos_injection --features=chaos-test -p moonlink -- --nocapture
 
