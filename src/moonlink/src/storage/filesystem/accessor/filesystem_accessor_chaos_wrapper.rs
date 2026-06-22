@@ -48,6 +48,7 @@ impl<A: Access> LayeredAccess for ChaosAccessor<A> {
     type Writer = ChaosWriter<A::Writer>;
     type Lister = A::Lister;
     type Deleter = A::Deleter;
+    type Copier = A::Copier;
 
     fn inner(&self) -> &Self::Inner {
         &self.inner

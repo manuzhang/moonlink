@@ -43,7 +43,7 @@ fn create_opendal_operator_impl(storage_config: &StorageConfig) -> Result<Operat
                     .endpoint(endpoint.as_ref().unwrap())
                     .disable_config_load()
                     .disable_vm_metadata()
-                    .allow_anonymous();
+                    .skip_signature();
                 return Ok(Operator::new(builder)?.finish());
             }
 
