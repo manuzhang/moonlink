@@ -342,6 +342,14 @@ impl ChaosState {
         false
     }
 
+    fn has_uncommitted_changes(&self) -> bool {
+        self.txn_state != TxnState::Empty
+            || !self.uncommitted_inserted_rows.is_empty()
+            || !self.uncommitted_updated_rows.is_empty()
+            || !self.deleted_committed_row_ids.is_empty()
+            || !self.deleted_uncommitted_row_ids.is_empty()
+    }
+
     /// Util function to decide whether the given id indicates a row that has been committed or not.
     fn is_committed_row(&self, id: i32) -> bool {
         // Uncommitted rows have much less records, so search on uncommitted records instead of committed ones.
@@ -575,10 +583,7 @@ impl ChaosState {
         }
 
         // Foreground table maintenance operations happen after a successfully committed transaction.
-        if self.uncommitted_inserted_rows.is_empty()
-            && self.uncommitted_inserted_rows.is_empty()
-            && self.last_txn_is_committed
-        {
+        if !self.has_uncommitted_changes() && self.last_txn_is_committed {
             if self.cur_lsn - self.non_table_update_cmd_call.force_snapshot_lsn
                 >= NON_UPDATE_COMMAND_INTERVAL_LSN
             {

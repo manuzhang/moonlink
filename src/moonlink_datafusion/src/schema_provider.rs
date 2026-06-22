@@ -2,7 +2,6 @@ use crate::table_provider::MooncakeTableProvider;
 use async_trait::async_trait;
 use datafusion::catalog::{SchemaProvider, TableProvider};
 use datafusion::common::DataFusionError;
-use std::any::Any;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -19,10 +18,6 @@ impl MooncakeSchemaProvider {
 
 #[async_trait]
 impl SchemaProvider for MooncakeSchemaProvider {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn table_names(&self) -> Vec<String> {
         unimplemented!()
     }

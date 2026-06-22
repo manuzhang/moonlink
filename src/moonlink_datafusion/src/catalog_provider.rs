@@ -2,7 +2,6 @@ use crate::connection_pool::Pool;
 use crate::error::Result;
 use crate::schema_provider::MooncakeSchemaProvider;
 use datafusion::catalog::{CatalogProvider, SchemaProvider};
-use std::any::Any;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -19,10 +18,6 @@ impl MooncakeCatalogProvider {
 }
 
 impl CatalogProvider for MooncakeCatalogProvider {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn schema_names(&self) -> Vec<String> {
         unimplemented!()
     }
