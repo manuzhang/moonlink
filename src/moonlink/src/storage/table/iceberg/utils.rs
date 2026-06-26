@@ -141,8 +141,7 @@ pub(crate) async fn get_table_if_exists<C: MoonlinkCatalog + ?Sized>(
 
 /// Get a unique remote index filepath.
 pub(crate) fn get_unique_hash_index_v1_filepath(iceberg_table: &IcebergTable) -> String {
-    let location_generator =
-        DefaultLocationGenerator::new(iceberg_table.metadata().clone()).unwrap();
+    let location_generator = DefaultLocationGenerator::new(iceberg_table.metadata()).unwrap();
     location_generator.generate_location(
         /*partition_key=*/ None,
         &format!("{}-hash-index-v1-puffin.bin", uuid::Uuid::now_v7()),
