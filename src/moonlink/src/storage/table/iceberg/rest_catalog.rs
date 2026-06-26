@@ -3,11 +3,11 @@ use crate::storage::filesystem::accessor_config::AccessorConfig;
 use crate::storage::table::iceberg::catalog_utils::{create_table_impl, update_table_impl};
 use crate::storage::table::iceberg::iceberg_table_config::RestCatalogConfig;
 use crate::storage::table::iceberg::io_utils as iceberg_io_utils;
-use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
 use crate::storage::table::iceberg::table_commit_proxy::TableCommitProxy;
 use crate::storage::table::iceberg::table_update_proxy::TableUpdateProxy;
 use async_trait::async_trait;
 use iceberg::io::FileIO;
+use iceberg::puffin::BlobMetadata;
 use iceberg::spec::{Schema as IcebergSchema, TableMetadata};
 use iceberg::table::Table;
 use iceberg::CatalogBuilder;
@@ -195,7 +195,7 @@ impl PuffinWrite for RestCatalog {
     fn record_puffin_metadata(
         &mut self,
         puffin_filepath: String,
-        puffin_metadata: Vec<PuffinBlobMetadataProxy>,
+        puffin_metadata: Vec<BlobMetadata>,
         puffin_blob_type: PuffinBlobType,
     ) {
         self.table_update_proxy.record_puffin_metadata(

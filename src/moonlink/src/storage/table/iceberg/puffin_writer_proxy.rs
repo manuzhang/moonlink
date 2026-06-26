@@ -19,7 +19,7 @@ use crate::storage::table::iceberg::data_file_manifest_manager::DataFileManifest
 use crate::storage::table::iceberg::deletion_vector_manifest_manager::DeletionVectorManifestManager;
 use crate::storage::table::iceberg::file_index_manifest_manager::FileIndexManifestManager;
 use iceberg::io::FileIO;
-use iceberg::puffin::{CompressionCodec, PuffinWriter};
+use iceberg::puffin::{BlobMetadata, CompressionCodec, PuffinWriter};
 use iceberg::spec::{FormatVersion, ManifestList, ManifestListWriter, Snapshot, TableMetadata};
 use iceberg::Result as IcebergResult;
 
@@ -29,25 +29,12 @@ enum PuffinFlagProxy {
     FooterPayloadCompressed = 0,
 }
 
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
-pub(crate) struct PuffinBlobMetadataProxy {
-    pub(crate) r#type: String,
-    pub(crate) fields: Vec<i32>,
-    pub(crate) snapshot_id: i64,
-    pub(crate) sequence_number: i64,
-    pub(crate) offset: u64,
-    pub(crate) length: u64,
-    pub(crate) compression_codec: CompressionCodec,
-    pub(crate) properties: HashMap<String, String>,
-}
-
 #[allow(dead_code)]
 struct PuffinWriterProxy {
     writer: Box<dyn iceberg::io::FileWrite>,
     is_header_written: bool,
     num_bytes_written: u64,
-    written_blobs_metadata: Vec<PuffinBlobMetadataProxy>,
+    written_blobs_metadata: Vec<BlobMetadata>,
     properties: HashMap<String, String>,
     footer_compression_codec: CompressionCodec,
     flags: std::collections::HashSet<PuffinFlagProxy>,
@@ -57,7 +44,7 @@ struct PuffinWriterProxy {
 /// This function is supposed to be called after all blobs added.
 pub(crate) async fn get_puffin_metadata_and_close(
     puffin_writer: PuffinWriter,
-) -> IcebergResult<Vec<PuffinBlobMetadataProxy>> {
+) -> IcebergResult<Vec<BlobMetadata>> {
     let puffin_writer_proxy =
         unsafe { std::mem::transmute::<PuffinWriter, PuffinWriterProxy>(puffin_writer) };
     let puffin_metadata = puffin_writer_proxy.written_blobs_metadata.clone();
@@ -80,27 +67,34 @@ async fn create_new_manifest_list_writer(
         .await?;
 
     let latest_seq_no = table_metadata.last_sequence_number();
-    let manifest_list_writer = if table_metadata.format_version() == FormatVersion::V1 {
-        ManifestListWriter::v1(
+    let manifest_list_writer = match table_metadata.format_version() {
+        FormatVersion::V1 => ManifestListWriter::v1(
             manifest_list_writer,
             cur_snapshot.snapshot_id(),
             /*parent_snapshot_id=*/ None,
-        )
-    } else if table_metadata.format_version() == FormatVersion::V2 {
-        ManifestListWriter::v2(
+        ),
+        FormatVersion::V2 => ManifestListWriter::v2(
             manifest_list_writer,
             cur_snapshot.snapshot_id(),
             /*parent_snapshot_id=*/ None,
             latest_seq_no,
-        )
-    } else {
-        ManifestListWriter::v3(
+        ),
+        FormatVersion::V3 => ManifestListWriter::v3(
             manifest_list_writer,
             cur_snapshot.snapshot_id(),
             /*parent_snapshot_id=*/ None,
             latest_seq_no,
             cur_snapshot.first_row_id(),
-        )
+        ),
+        #[allow(unreachable_patterns)]
+        unsupported => {
+            return Err(iceberg::Error::new(
+                iceberg::ErrorKind::FeatureUnsupported,
+                format!(
+                    "Unsupported iceberg table format version {unsupported} for manifest list writer"
+                ),
+            ));
+        }
     };
     Ok(manifest_list_writer)
 }
@@ -125,8 +119,8 @@ async fn create_new_manifest_list_writer(
 pub(crate) async fn append_puffin_metadata_and_rewrite(
     table_metadata: &TableMetadata,
     file_io: &FileIO,
-    deletion_vector_blobs_to_add: &HashMap<String, Vec<PuffinBlobMetadataProxy>>,
-    file_index_blobs_to_add: &HashMap<String, Vec<PuffinBlobMetadataProxy>>,
+    deletion_vector_blobs_to_add: &HashMap<String, Vec<BlobMetadata>>,
+    file_index_blobs_to_add: &HashMap<String, Vec<BlobMetadata>>,
     data_files_to_remove: &HashSet<String>,
     index_puffin_blobs_to_remove: &HashSet<String>,
 ) -> IcebergResult<()> {

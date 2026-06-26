@@ -24,6 +24,7 @@ allow = [
 [sources]
 unknown-git = "deny"
 allow-git = [
+    "https://github.com/apache/iceberg-rust.git?tag=v0.10.0-rc.1",
     "https://github.com/Mooncake-Labs/rust-postgres.git?rev=14c8e599f5551a8caa96ff5023685a6f537a1455",
 ]
 

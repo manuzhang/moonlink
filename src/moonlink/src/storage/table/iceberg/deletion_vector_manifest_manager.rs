@@ -4,13 +4,12 @@ use crate::storage::table::iceberg::deletion_vector::{
 };
 use crate::storage::table::iceberg::manifest_utils;
 use crate::storage::table::iceberg::manifest_utils::ManifestEntryType;
-use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use iceberg::io::FileIO;
-use iceberg::puffin::DELETION_VECTOR_V1;
+use iceberg::puffin::{BlobMetadata, DELETION_VECTOR_V1};
 use iceberg::spec::{
     DataContentType, DataFile, DataFileBuilder, DataFileFormat, ManifestEntry, ManifestFile,
     ManifestMetadata, ManifestWriter, TableMetadata,
@@ -88,7 +87,7 @@ impl<'a> DeletionVectorManifestManager<'a> {
 
     pub(crate) fn add_new_puffin_blobs(
         &mut self,
-        deletion_vector_blobs_to_add: &HashMap<String, Vec<PuffinBlobMetadataProxy>>,
+        deletion_vector_blobs_to_add: &HashMap<String, Vec<BlobMetadata>>,
     ) -> IcebergResult<()> {
         for (puffin_filepath, blob_metadata) in deletion_vector_blobs_to_add.iter() {
             for cur_blob_metadata in blob_metadata.iter() {
@@ -100,7 +99,7 @@ impl<'a> DeletionVectorManifestManager<'a> {
                 self.writer
                     .as_mut()
                     .unwrap()
-                    .add_file(data_file, cur_blob_metadata.sequence_number)?;
+                    .add_file(data_file, cur_blob_metadata.sequence_number())?;
             }
         }
         Ok(())
@@ -131,11 +130,11 @@ impl<'a> DeletionVectorManifestManager<'a> {
 /// Util function to get `DataFile` for deletion vector puffin blob.
 fn get_data_file_for_deletion_vector(
     puffin_filepath: &str,
-    blob_metadata: &PuffinBlobMetadataProxy,
+    blob_metadata: &BlobMetadata,
 ) -> IcebergResult<(String /*referenced_data_filepath*/, DataFile)> {
-    assert_eq!(blob_metadata.r#type, DELETION_VECTOR_V1);
+    assert_eq!(blob_metadata.blob_type(), DELETION_VECTOR_V1);
     let referenced_data_filepath = blob_metadata
-        .properties
+        .properties()
         .get(DELETION_VECTOR_REFERENCED_DATA_FILE)
         .unwrap()
         .clone();
@@ -146,7 +145,7 @@ fn get_data_file_for_deletion_vector(
         .file_format(DataFileFormat::Puffin)
         .record_count(
             blob_metadata
-                .properties
+                .properties()
                 .get(DELETION_VECTOR_CADINALITY)
                 .unwrap()
                 .parse()
@@ -155,8 +154,8 @@ fn get_data_file_for_deletion_vector(
         // TODO(hjiang): Not necessary for puffin blob, but worth double confirm.
         .file_size_in_bytes(0)
         .referenced_data_file(Some(referenced_data_filepath.clone()))
-        .content_offset(Some(blob_metadata.offset as i64))
-        .content_size_in_bytes(Some(blob_metadata.length as i64))
+        .content_offset(Some(blob_metadata.offset() as i64))
+        .content_size_in_bytes(Some(blob_metadata.length() as i64))
         .build()
         .map_err(|e| {
             IcebergError::new(

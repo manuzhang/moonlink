@@ -3,12 +3,12 @@ use crate::storage::table::iceberg::index::{
 };
 use crate::storage::table::iceberg::manifest_utils;
 use crate::storage::table::iceberg::manifest_utils::ManifestEntryType;
-use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use iceberg::io::FileIO;
+use iceberg::puffin::BlobMetadata;
 use iceberg::spec::{
     DataContentType, DataFile, DataFileBuilder, DataFileFormat, ManifestEntry, ManifestFile,
     ManifestMetadata, ManifestWriter, TableMetadata,
@@ -77,7 +77,7 @@ impl<'a> FileIndexManifestManager<'a> {
 
     pub(crate) fn add_new_puffin_blobs(
         &mut self,
-        file_index_blobs_to_add: &HashMap<String, Vec<PuffinBlobMetadataProxy>>,
+        file_index_blobs_to_add: &HashMap<String, Vec<BlobMetadata>>,
     ) -> IcebergResult<()> {
         for (puffin_filepath, blob_metadata) in file_index_blobs_to_add.iter() {
             for cur_blob_metadata in blob_metadata.iter() {
@@ -86,7 +86,7 @@ impl<'a> FileIndexManifestManager<'a> {
                 self.writer
                     .as_mut()
                     .unwrap()
-                    .add_file(data_file, cur_blob_metadata.sequence_number)?;
+                    .add_file(data_file, cur_blob_metadata.sequence_number())?;
             }
         }
         Ok(())
@@ -105,16 +105,16 @@ impl<'a> FileIndexManifestManager<'a> {
 /// Util function to get `DataFile` for new file index puffin blob.
 fn get_data_file_for_file_index(
     puffin_filepath: &str,
-    blob_metadata: &PuffinBlobMetadataProxy,
+    blob_metadata: &BlobMetadata,
 ) -> IcebergResult<DataFile> {
-    assert_eq!(blob_metadata.r#type, MOONCAKE_HASH_INDEX_V1);
+    assert_eq!(blob_metadata.blob_type(), MOONCAKE_HASH_INDEX_V1);
     DataFileBuilder::default()
         .content(DataContentType::Data)
         .file_path(puffin_filepath.to_string())
         .file_format(DataFileFormat::Puffin)
         .record_count(
             blob_metadata
-                .properties
+                .properties()
                 .get(MOONCAKE_HASH_INDEX_V1_CARDINALITY)
                 .unwrap()
                 .parse()

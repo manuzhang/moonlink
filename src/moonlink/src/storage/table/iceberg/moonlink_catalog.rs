@@ -5,7 +5,7 @@ use iceberg::{Catalog, Result as IcebergResult, TableIdent};
 
 use std::collections::HashSet;
 
-use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
+use iceberg::puffin::BlobMetadata;
 
 pub enum PuffinBlobType {
     DeletionVector,
@@ -20,7 +20,7 @@ pub trait PuffinWrite {
     fn record_puffin_metadata(
         &mut self,
         puffin_filepath: String,
-        puffin_metadata: Vec<PuffinBlobMetadataProxy>,
+        puffin_metadata: Vec<BlobMetadata>,
         puffin_blob_type: PuffinBlobType,
     );
 
@@ -34,8 +34,9 @@ pub trait PuffinWrite {
     fn clear_puffin_metadata(&mut self);
 }
 
-/// TODO(hjiang): iceberg-rust currently doesn't support schema evolution, to workaround and reduce code change,
-/// we do schema evolution by directly setting table commits.
+/// TODO(hjiang): iceberg-rust supports column-oriented schema evolution, but not full-schema
+/// replacement with caller-assigned field IDs. To workaround and reduce code change, we do schema
+/// evolution by directly setting table commits.
 #[async_trait]
 pub trait SchemaUpdate {
     /// Update table schema, and return the updated iceberg table.

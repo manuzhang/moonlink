@@ -3,12 +3,14 @@ use crate::storage::filesystem::accessor_config::AccessorConfig;
 use crate::storage::table::iceberg::catalog_utils::{create_table_impl, update_table_impl};
 use crate::storage::table::iceberg::iceberg_table_config::GlueCatalogConfig;
 use crate::storage::table::iceberg::io_utils as iceberg_io_utils;
-use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
 use crate::storage::table::iceberg::table_commit_proxy::TableCommitProxy;
 use crate::storage::table::iceberg::table_update_proxy::TableUpdateProxy;
 use crate::StorageConfig;
 use async_trait::async_trait;
-use iceberg::io::{FileIO, S3_ACCESS_KEY_ID, S3_ENDPOINT, S3_REGION, S3_SECRET_ACCESS_KEY};
+use iceberg::io::{
+    FileIO, S3_ACCESS_KEY_ID, S3_ENDPOINT, S3_PATH_STYLE_ACCESS, S3_REGION, S3_SECRET_ACCESS_KEY,
+};
+use iceberg::puffin::BlobMetadata;
 use iceberg::spec::{Schema as IcebergSchema, TableMetadata};
 use iceberg::table::Table;
 use iceberg::CatalogBuilder;
@@ -98,13 +100,16 @@ fn extract_glue_config_properties(
     if let Some(catalog_id) = &glue_config.catalog_id {
         config_props.insert(GLUE_CATALOG_PROP_CATALOG_ID.to_string(), catalog_id.clone());
     }
-    // Set S3 endpoint
-    let s3_endpoint = if let Some(s3_endpoint) = &glue_config.s3_endpoint {
-        s3_endpoint.to_string()
+    // Set S3 endpoint.
+    if let Some(s3_endpoint) = &glue_config.s3_endpoint {
+        config_props.insert(S3_ENDPOINT.to_string(), s3_endpoint.to_string());
+        config_props.insert(S3_PATH_STYLE_ACCESS.to_string(), "true".to_string());
     } else {
-        format!("https://s3.{s3_region}.amazonaws.com")
-    };
-    config_props.insert(S3_ENDPOINT.to_string(), s3_endpoint);
+        config_props.insert(
+            S3_ENDPOINT.to_string(),
+            format!("https://s3.{s3_region}.amazonaws.com"),
+        );
+    }
 
     Ok(config_props)
 }
@@ -256,7 +261,7 @@ impl PuffinWrite for GlueCatalog {
     fn record_puffin_metadata(
         &mut self,
         puffin_filepath: String,
-        puffin_metadata: Vec<PuffinBlobMetadataProxy>,
+        puffin_metadata: Vec<BlobMetadata>,
         puffin_blob_type: PuffinBlobType,
     ) {
         self.table_update_proxy.record_puffin_metadata(

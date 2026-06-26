@@ -1,8 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::storage::table::iceberg::{
-    moonlink_catalog::PuffinBlobType, puffin_writer_proxy::PuffinBlobMetadataProxy,
-};
+use crate::storage::table::iceberg::moonlink_catalog::PuffinBlobType;
+use iceberg::puffin::BlobMetadata;
 
 /// iceberg-rust doesn't support a few requirement features for moonlink, for example, deletion vector, data files to remove, etc.
 /// TableUpdateProxy records these unsupported content which will be used in [`Catalog::update_table`].
@@ -11,8 +10,8 @@ use crate::storage::table::iceberg::{
 #[derive(Debug, Default)]
 pub(crate) struct TableUpdateProxy {
     /// Maps from "puffin filepath" to "puffin blob metadata".
-    pub(crate) deletion_vector_blobs_to_add: HashMap<String, Vec<PuffinBlobMetadataProxy>>,
-    pub(crate) file_index_blobs_to_add: HashMap<String, Vec<PuffinBlobMetadataProxy>>,
+    pub(crate) deletion_vector_blobs_to_add: HashMap<String, Vec<BlobMetadata>>,
+    pub(crate) file_index_blobs_to_add: HashMap<String, Vec<BlobMetadata>>,
     /// A vector of "puffin filepath"s.
     pub(crate) puffin_blobs_to_remove: HashSet<String>,
     /// A set of data files to remove, along with their corresponding deletion vectors and file indices.
@@ -34,7 +33,7 @@ impl TableUpdateProxy {
     pub(crate) fn record_puffin_metadata(
         &mut self,
         puffin_filepath: String,
-        puffin_metadata: Vec<PuffinBlobMetadataProxy>,
+        puffin_metadata: Vec<BlobMetadata>,
         puffin_blob_type: PuffinBlobType,
     ) {
         match &puffin_blob_type {

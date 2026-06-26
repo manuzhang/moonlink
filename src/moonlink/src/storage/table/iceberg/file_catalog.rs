@@ -9,7 +9,6 @@ use crate::storage::table::iceberg::io_utils as iceberg_io_utils;
 use crate::storage::table::iceberg::moonlink_catalog::{
     CatalogAccess, PuffinBlobType, PuffinWrite, SchemaUpdate,
 };
-use crate::storage::table::iceberg::puffin_writer_proxy::PuffinBlobMetadataProxy;
 use crate::storage::table::iceberg::table_commit_proxy::TableCommitProxy;
 use crate::storage::table::iceberg::table_update_proxy::TableUpdateProxy;
 
@@ -49,6 +48,7 @@ use tokio::sync::Mutex;
 
 use async_trait::async_trait;
 use iceberg::io::FileIO;
+use iceberg::puffin::BlobMetadata;
 use iceberg::spec::{
     Schema as IcebergSchema, TableMetadata, TableMetadataBuildResult, TableMetadataBuilder,
 };
@@ -237,7 +237,7 @@ impl PuffinWrite for FileCatalog {
     fn record_puffin_metadata(
         &mut self,
         puffin_filepath: String,
-        puffin_metadata: Vec<PuffinBlobMetadataProxy>,
+        puffin_metadata: Vec<BlobMetadata>,
         puffin_blob_type: PuffinBlobType,
     ) {
         self.table_update_proxy.record_puffin_metadata(
@@ -520,6 +520,7 @@ impl Catalog for FileCatalog {
             .metadata(metadata)
             .identifier(table_ident)
             .file_io(self.file_io.clone())
+            .runtime(iceberg::Runtime::try_current()?)
             .build()?;
         Ok(table)
     }
@@ -535,6 +536,7 @@ impl Catalog for FileCatalog {
             .metadata(metadata)
             .identifier(table_ident.clone())
             .file_io(self.file_io.clone())
+            .runtime(iceberg::Runtime::try_current()?)
             .build()?;
         Ok(table)
     }
@@ -674,6 +676,7 @@ impl Catalog for FileCatalog {
             .file_io(self.file_io.clone())
             .metadata(metadata)
             .metadata_location(metadata_filepath)
+            .runtime(iceberg::Runtime::try_current()?)
             .build()
     }
 

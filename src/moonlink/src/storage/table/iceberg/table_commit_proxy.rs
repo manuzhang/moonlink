@@ -1,6 +1,6 @@
 use iceberg::{TableCommit, TableIdent, TableRequirement, TableUpdate};
 
-/// Struct which mimics [`TableCommit`], to workaround the limitation that [`TableCommit`] is not exposed to public.
+/// Struct which mimics [`TableCommit`], because [`TableCommit`] does not expose a public constructor.
 #[repr(C)]
 pub(crate) struct TableCommitProxy {
     pub(crate) ident: TableIdent,

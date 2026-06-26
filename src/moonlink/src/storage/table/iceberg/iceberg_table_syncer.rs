@@ -26,9 +26,7 @@ use crate::storage::table::iceberg::io_utils as iceberg_io_utils;
 use crate::storage::table::iceberg::moonlink_catalog::PuffinBlobType;
 use crate::storage::table::iceberg::puffin_utils;
 use crate::storage::table::iceberg::puffin_utils::PuffinBlobRef;
-use crate::storage::table::iceberg::puffin_writer_proxy::{
-    get_puffin_metadata_and_close, PuffinBlobMetadataProxy,
-};
+use crate::storage::table::iceberg::puffin_writer_proxy::get_puffin_metadata_and_close;
 use crate::storage::table::iceberg::schema_utils;
 use crate::storage::table::iceberg::utils::get_unique_hash_index_v1_filepath;
 use crate::Result;
@@ -39,7 +37,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::vec;
 
-use iceberg::puffin::CompressionCodec;
+use iceberg::puffin::{BlobMetadata, CompressionCodec};
 use iceberg::spec::DataFile;
 use iceberg::transaction::{ApplyTransactionAction, Transaction};
 use iceberg::{Error as IcebergError, Result as IcebergResult};
@@ -79,7 +77,7 @@ struct SingleFileIndexImportResult {
     /// File index.
     mooncake_file_index: MooncakeFileIndex,
     /// Puffin metadata.
-    puffin_metadata: Vec<PuffinBlobMetadataProxy>,
+    puffin_metadata: Vec<BlobMetadata>,
     /// Puffin filepath.
     puffin_filepath: String,
 }
@@ -97,7 +95,7 @@ struct PreparedDeletionVectorBlob {
     /// Puffin file path the blob is stored.
     puffin_filepath: String,
     /// Puffin metadata for the blob.
-    puffin_metadata: Option<Vec<PuffinBlobMetadataProxy>>,
+    puffin_metadata: Option<Vec<BlobMetadata>>,
     /// Deleted row count.
     deleted_row_count: usize,
 }
