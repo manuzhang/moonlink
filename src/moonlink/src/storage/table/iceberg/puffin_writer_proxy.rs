@@ -20,7 +20,7 @@ use crate::storage::table::iceberg::deletion_vector_manifest_manager::DeletionVe
 use crate::storage::table::iceberg::file_index_manifest_manager::FileIndexManifestManager;
 use iceberg::io::FileIO;
 use iceberg::puffin::{CompressionCodec, PuffinWriter};
-use iceberg::spec::{FormatVersion, ManifestListWriter, Snapshot, TableMetadata};
+use iceberg::spec::{FormatVersion, ManifestList, ManifestListWriter, Snapshot, TableMetadata};
 use iceberg::Result as IcebergResult;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -74,21 +74,32 @@ async fn create_new_manifest_list_writer(
     file_io: &FileIO,
 ) -> IcebergResult<ManifestListWriter> {
     // Overwrite the old manifest list file.
-    let manifest_list_outfile = file_io.new_output(cur_snapshot.manifest_list())?;
+    let manifest_list_writer = file_io
+        .new_output(cur_snapshot.manifest_list())?
+        .writer()
+        .await?;
 
     let latest_seq_no = table_metadata.last_sequence_number();
     let manifest_list_writer = if table_metadata.format_version() == FormatVersion::V1 {
         ManifestListWriter::v1(
-            manifest_list_outfile,
+            manifest_list_writer,
             cur_snapshot.snapshot_id(),
             /*parent_snapshot_id=*/ None,
         )
-    } else {
+    } else if table_metadata.format_version() == FormatVersion::V2 {
         ManifestListWriter::v2(
-            manifest_list_outfile,
+            manifest_list_writer,
             cur_snapshot.snapshot_id(),
             /*parent_snapshot_id=*/ None,
             latest_seq_no,
+        )
+    } else {
+        ManifestListWriter::v3(
+            manifest_list_writer,
+            cur_snapshot.snapshot_id(),
+            /*parent_snapshot_id=*/ None,
+            latest_seq_no,
+            cur_snapshot.first_row_id(),
         )
     };
     Ok(manifest_list_writer)
@@ -128,9 +139,12 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
     }
 
     let cur_snapshot = table_metadata.current_snapshot().unwrap();
-    let manifest_list = cur_snapshot
-        .load_manifest_list(file_io, table_metadata)
+    let manifest_list_content = file_io
+        .new_input(cur_snapshot.manifest_list())?
+        .read()
         .await?;
+    let manifest_list =
+        ManifestList::parse_with_version(&manifest_list_content, table_metadata.format_version())?;
 
     // Delete existing manifest list file and rewrite.
     let mut manifest_list_writer =

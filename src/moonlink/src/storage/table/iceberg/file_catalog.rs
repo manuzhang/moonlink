@@ -556,6 +556,10 @@ impl Catalog for FileCatalog {
         Ok(())
     }
 
+    async fn purge_table(&self, table: &TableIdent) -> IcebergResult<()> {
+        self.drop_table(table).await
+    }
+
     /// Check if a table exists in the catalog.
     async fn table_exists(&self, table: &TableIdent) -> IcebergResult<bool> {
         let mut version_hint_filepath = PathBuf::from(table.namespace.to_url_string());
