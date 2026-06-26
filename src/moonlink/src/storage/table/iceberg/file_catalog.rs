@@ -520,6 +520,7 @@ impl Catalog for FileCatalog {
             .metadata(metadata)
             .identifier(table_ident)
             .file_io(self.file_io.clone())
+            .runtime(iceberg::Runtime::try_current()?)
             .build()?;
         Ok(table)
     }
@@ -535,6 +536,7 @@ impl Catalog for FileCatalog {
             .metadata(metadata)
             .identifier(table_ident.clone())
             .file_io(self.file_io.clone())
+            .runtime(iceberg::Runtime::try_current()?)
             .build()?;
         Ok(table)
     }
@@ -674,6 +676,7 @@ impl Catalog for FileCatalog {
             .file_io(self.file_io.clone())
             .metadata(metadata)
             .metadata_location(metadata_filepath)
+            .runtime(iceberg::Runtime::try_current()?)
             .build()
     }
 

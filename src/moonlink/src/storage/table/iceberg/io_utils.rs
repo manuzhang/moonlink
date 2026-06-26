@@ -172,7 +172,9 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
             .with_prop(iceberg::io::S3_DISABLE_CONFIG_LOAD, "true")
             .with_prop(iceberg::io::S3_DISABLE_EC2_METADATA, "true");
             if let Some(endpoint) = endpoint {
-                file_io_builder = file_io_builder.with_prop(iceberg::io::S3_ENDPOINT, endpoint);
+                file_io_builder = file_io_builder
+                    .with_prop(iceberg::io::S3_ENDPOINT, endpoint)
+                    .with_prop(iceberg::io::S3_PATH_STYLE_ACCESS, "true");
             }
             Ok(file_io_builder.build())
         }
