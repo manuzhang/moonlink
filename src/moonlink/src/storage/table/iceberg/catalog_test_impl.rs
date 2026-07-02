@@ -11,6 +11,25 @@ use iceberg::{
     NamespaceIdent, TableCommit, TableCreation, TableIdent, TableRequirement, TableUpdate,
 };
 
+fn warehouse_qualified_metadata_location(
+    warehouse_location: &str,
+    metadata_location: String,
+) -> String {
+    let warehouse_location = warehouse_location.trim_end_matches('/');
+    if warehouse_location.is_empty()
+        || metadata_location == warehouse_location
+        || metadata_location.starts_with(&format!("{warehouse_location}/"))
+    {
+        metadata_location
+    } else {
+        format!(
+            "{}/{}",
+            warehouse_location,
+            metadata_location.trim_start_matches('/')
+        )
+    }
+}
+
 /// This file contains testing logic which is general to all types of catalogs.
 ///
 /// Test util function to create a new table.
@@ -270,6 +289,15 @@ pub(crate) async fn test_update_table_impl(
     assert_eq!(**table_metadata.current_schema(), get_test_schema(),);
     assert_eq!(table.identifier(), &table_ident,);
     assert_eq!(table_metadata.current_snapshot_id(), Some(1),);
+    let (latest_metadata_location, _) = catalog.load_metadata(&table_ident).await.unwrap();
+    let expected_metadata_location = warehouse_qualified_metadata_location(
+        catalog.get_warehouse_location(),
+        latest_metadata_location,
+    );
+    assert_eq!(
+        table.metadata_location(),
+        Some(expected_metadata_location.as_str()),
+    );
 }
 
 pub(crate) async fn test_update_schema_impl(
