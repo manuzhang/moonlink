@@ -147,3 +147,6 @@ debug = true
 [patch.crates-io]
 postgres-types = { git = "https://github.com/Mooncake-Labs/rust-postgres.git", rev = "14c8e599f5551a8caa96ff5023685a6f537a1455" }
 postgres-protocol = { git = "https://github.com/Mooncake-Labs/rust-postgres.git", rev = "14c8e599f5551a8caa96ff5023685a6f537a1455" }
+reqsign-aws-v4 = { git = "https://github.com/apache/opendal-reqsign.git", rev = "4214e9715be38b9d2b8a80aa1373fc5d73bd1634" }
+reqsign-core = { git = "https://github.com/apache/opendal-reqsign.git", rev = "4214e9715be38b9d2b8a80aa1373fc5d73bd1634" }
+reqsign-google = { git = "https://github.com/apache/opendal-reqsign.git", rev = "4214e9715be38b9d2b8a80aa1373fc5d73bd1634" }

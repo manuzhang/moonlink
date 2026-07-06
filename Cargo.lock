@@ -6833,9 +6833,9 @@ dependencies = [
 
 [[package]]
 name = "quick-xml"
-version = "0.40.1"
+version = "0.41.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2474bd2e5029e7ccb6abb2ba48cf2383a333851dedf495901544281590c7da7f"
+checksum = "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1"
 dependencies = [
  "memchr",
  "serde",
@@ -6894,7 +6894,7 @@ dependencies = [
  "once_cell",
  "socket2 0.5.10",
  "tracing",
- "windows-sys 0.60.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -7168,8 +7168,7 @@ dependencies = [
 [[package]]
 name = "reqsign-aws-v4"
 version = "3.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b75624bd8a466e37ddc0a7b6c33ac859a85347c153a916e1dd9d0b68338f74a"
+source = "git+https://github.com/apache/opendal-reqsign.git?rev=4214e9715be38b9d2b8a80aa1373fc5d73bd1634#4214e9715be38b9d2b8a80aa1373fc5d73bd1634"
 dependencies = [
  "anyhow",
  "bytes",
@@ -7178,7 +7177,7 @@ dependencies = [
  "http 1.3.1",
  "log",
  "percent-encoding",
- "quick-xml 0.40.1",
+ "quick-xml 0.41.0",
  "reqsign-core",
  "rust-ini",
  "serde",
@@ -7190,8 +7189,7 @@ dependencies = [
 [[package]]
 name = "reqsign-core"
 version = "3.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5fa5cb48808693614d1701fcd3db0b30fa292e0f18e122ae068b6d32eaeed3f"
+source = "git+https://github.com/apache/opendal-reqsign.git?rev=4214e9715be38b9d2b8a80aa1373fc5d73bd1634#4214e9715be38b9d2b8a80aa1373fc5d73bd1634"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -7226,8 +7224,7 @@ dependencies = [
 [[package]]
 name = "reqsign-google"
 version = "3.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb215d0876a18b6bd9cdd380b589e5292aaa638ca15266de794b1122d898b6b2"
+source = "git+https://github.com/apache/opendal-reqsign.git?rev=4214e9715be38b9d2b8a80aa1373fc5d73bd1634#4214e9715be38b9d2b8a80aa1373fc5d73bd1634"
 dependencies = [
  "form_urlencoded",
  "http 1.3.1",
@@ -8008,7 +8005,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52d1cfed4120b4d927bf7c0f86d2087a4a7d6027c906d9f9d525a80573b9be51"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

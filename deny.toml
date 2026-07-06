@@ -24,6 +24,7 @@ allow = [
 [sources]
 unknown-git = "deny"
 allow-git = [
+    "https://github.com/apache/opendal-reqsign.git?rev=4214e9715be38b9d2b8a80aa1373fc5d73bd1634",
     "https://github.com/Mooncake-Labs/rust-postgres.git?rev=14c8e599f5551a8caa96ff5023685a6f537a1455",
 ]
 
@@ -38,6 +39,8 @@ ignore = [
     "RUSTSEC-2026-0099", # rustls-webpki 0.101.x via aws-smithy legacy optional feature
     "RUSTSEC-2026-0104", # rustls-webpki 0.101.x via aws-smithy legacy optional feature
     "RUSTSEC-2026-0173", # proc-macro-error2 - unmaintained, transitive via deltalake
+    "RUSTSEC-2026-0194", # quick-xml via opendal-core/object_store; no compatible published dependency chain yet
+    "RUSTSEC-2026-0195", # quick-xml via opendal-core/object_store; no compatible published dependency chain yet
 ]
 
 # TODO(hjiang): Resolve all duplicate dependencies.
