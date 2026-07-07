@@ -39,12 +39,25 @@ ignore = [
     "RUSTSEC-2026-0099", # rustls-webpki 0.101.x via aws-smithy legacy optional feature
     "RUSTSEC-2026-0104", # rustls-webpki 0.101.x via aws-smithy legacy optional feature
     "RUSTSEC-2026-0173", # proc-macro-error2 - unmaintained, transitive via deltalake
-    "RUSTSEC-2026-0194", # quick-xml via opendal-core/object_store; no compatible published dependency chain yet
-    "RUSTSEC-2026-0195", # quick-xml via opendal-core/object_store; no compatible published dependency chain yet
+    "RUSTSEC-2026-0194", # quick-xml <0.41.0; known tolerated paths are constrained in bans.deny
+    "RUSTSEC-2026-0195", # quick-xml <0.41.0; known tolerated paths are constrained in bans.deny
 ]
 
 # TODO(hjiang): Resolve all duplicate dependencies.
 [bans]
+deny = [
+    # Keep the global quick-xml advisory ignore from admitting new vulnerable paths.
+    # Remove these once all owners below can resolve to quick-xml >=0.41.0.
+    { crate = "quick-xml:<0.26.0", reason = "RUSTSEC-2026-0194/0195: do not allow new vulnerable quick-xml versions" },
+    { crate = "quick-xml@0.26.0", wrappers = ["inferno"], reason = "RUSTSEC-2026-0194/0195: pprof flamegraph path only" },
+    { crate = "quick-xml:>0.26.0, <0.37.5", reason = "RUSTSEC-2026-0194/0195: do not allow new vulnerable quick-xml versions" },
+    { crate = "quick-xml@0.37.5", wrappers = ["reqsign"], reason = "RUSTSEC-2026-0194/0195: iceberg-storage-opendal reqsign path only" },
+    { crate = "quick-xml:>0.37.5, <0.38.3", reason = "RUSTSEC-2026-0194/0195: do not allow new vulnerable quick-xml versions" },
+    { crate = "quick-xml@0.38.3", wrappers = ["opendal"], reason = "RUSTSEC-2026-0194/0195: iceberg-storage-opendal opendal path only" },
+    { crate = "quick-xml:>0.38.3, <0.39.4", reason = "RUSTSEC-2026-0194/0195: do not allow new vulnerable quick-xml versions" },
+    { crate = "quick-xml@0.39.4", wrappers = ["object_store", "opendal-core", "opendal-service-gcs", "opendal-service-s3"], reason = "RUSTSEC-2026-0194/0195: DataFusion/Delta/OpenDAL path only" },
+    { crate = "quick-xml:>0.39.4, <0.41.0", reason = "RUSTSEC-2026-0194/0195: do not allow new vulnerable quick-xml versions" },
+]
 skip = [
     { name = "axum" },
     { name = "axum-core" },
