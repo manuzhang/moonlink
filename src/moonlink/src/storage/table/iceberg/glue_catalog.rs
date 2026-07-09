@@ -8,7 +8,9 @@ use crate::storage::table::iceberg::table_commit_proxy::TableCommitProxy;
 use crate::storage::table::iceberg::table_update_proxy::TableUpdateProxy;
 use crate::StorageConfig;
 use async_trait::async_trait;
-use iceberg::io::{FileIO, S3_ACCESS_KEY_ID, S3_ENDPOINT, S3_REGION, S3_SECRET_ACCESS_KEY};
+use iceberg::io::{
+    FileIO, S3_ACCESS_KEY_ID, S3_ENDPOINT, S3_PATH_STYLE_ACCESS, S3_REGION, S3_SECRET_ACCESS_KEY,
+};
 use iceberg::spec::{Schema as IcebergSchema, TableMetadata};
 use iceberg::table::Table;
 use iceberg::CatalogBuilder;
@@ -100,6 +102,7 @@ fn extract_glue_config_properties(
     }
     // Set S3 endpoint
     let s3_endpoint = if let Some(s3_endpoint) = &glue_config.s3_endpoint {
+        config_props.insert(S3_PATH_STYLE_ACCESS.to_string(), "true".to_string());
         s3_endpoint.to_string()
     } else {
         format!("https://s3.{s3_region}.amazonaws.com")
