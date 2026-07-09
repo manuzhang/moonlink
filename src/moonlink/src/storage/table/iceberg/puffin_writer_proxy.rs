@@ -138,7 +138,7 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
     let manifest_list =
         ManifestList::parse_with_version(&manifest_list_content, table_metadata.format_version())?;
 
-    // Delete existing manifest list file and rewrite.
+    // Rewrite the manifest list at the current snapshot path.
     let mut manifest_list_writer =
         create_new_manifest_list_writer(table_metadata, cur_snapshot, file_io).await?;
 

@@ -541,7 +541,10 @@ impl Catalog for FileCatalog {
         Ok(table)
     }
 
-    /// Drop a table from the catalog.
+    /// Drop a table from the file catalog.
+    ///
+    /// The file catalog stores the table registration in the table directory itself, so there is
+    /// no non-destructive unregister operation. Removing the directory drops metadata and data.
     async fn drop_table(&self, table: &TableIdent) -> IcebergResult<()> {
         let directory = format!("{}/{}", table.namespace().to_url_string(), table.name());
         self.filesystem_accessor
@@ -558,7 +561,10 @@ impl Catalog for FileCatalog {
         Ok(())
     }
 
-    /// Drop a table from the catalog and delete the underlying table data.
+    /// Drop a table from the file catalog and delete the underlying table data.
+    ///
+    /// This is equivalent to `drop_table` because the file catalog has no separate metastore entry
+    /// to remove independently from the table directory.
     async fn purge_table(&self, table: &TableIdent) -> IcebergResult<()> {
         self.drop_table(table).await
     }
