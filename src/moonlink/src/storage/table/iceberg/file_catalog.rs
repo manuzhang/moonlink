@@ -520,6 +520,7 @@ impl Catalog for FileCatalog {
             .metadata(metadata)
             .identifier(table_ident)
             .file_io(self.file_io.clone())
+            .runtime(iceberg::Runtime::try_current()?)
             .build()?;
         Ok(table)
     }
@@ -535,6 +536,7 @@ impl Catalog for FileCatalog {
             .metadata(metadata)
             .identifier(table_ident.clone())
             .file_io(self.file_io.clone())
+            .runtime(iceberg::Runtime::try_current()?)
             .build()?;
         Ok(table)
     }
@@ -554,6 +556,11 @@ impl Catalog for FileCatalog {
                 .with_source(e)
             })?;
         Ok(())
+    }
+
+    /// Drop a table from the catalog and delete the underlying table data.
+    async fn purge_table(&self, table: &TableIdent) -> IcebergResult<()> {
+        self.drop_table(table).await
     }
 
     /// Check if a table exists in the catalog.
@@ -670,6 +677,7 @@ impl Catalog for FileCatalog {
             .file_io(self.file_io.clone())
             .metadata(metadata)
             .metadata_location(metadata_filepath)
+            .runtime(iceberg::Runtime::try_current()?)
             .build()
     }
 
