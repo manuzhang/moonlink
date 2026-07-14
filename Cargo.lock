@@ -936,7 +936,7 @@ dependencies = [
  "bytes",
  "fastrand",
  "hex",
- "http 1.3.1",
+ "http 1.4.2",
  "sha1 0.10.6",
  "time",
  "tokio",
@@ -996,7 +996,7 @@ dependencies = [
  "bytes",
  "bytes-utils",
  "fastrand",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "percent-encoding",
  "pin-project-lite",
@@ -1023,7 +1023,7 @@ dependencies = [
  "bytes",
  "fastrand",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "regex-lite",
  "tracing",
 ]
@@ -1048,7 +1048,7 @@ dependencies = [
  "bytes",
  "fastrand",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "regex-lite",
  "tracing",
 ]
@@ -1073,7 +1073,7 @@ dependencies = [
  "bytes",
  "fastrand",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "regex-lite",
  "tracing",
 ]
@@ -1098,7 +1098,7 @@ dependencies = [
  "bytes",
  "fastrand",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "regex-lite",
  "tracing",
 ]
@@ -1124,7 +1124,7 @@ dependencies = [
  "aws-types",
  "fastrand",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "regex-lite",
  "tracing",
 ]
@@ -1144,7 +1144,7 @@ dependencies = [
  "hex",
  "hmac 0.13.0",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "percent-encoding",
  "sha2 0.11.0",
  "time",
@@ -1174,7 +1174,7 @@ dependencies = [
  "bytes-utils",
  "futures-core",
  "futures-util",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "http-body-util",
  "percent-encoding",
@@ -1193,7 +1193,7 @@ dependencies = [
  "aws-smithy-runtime-api",
  "aws-smithy-types",
  "h2",
- "http 1.3.1",
+ "http 1.4.2",
  "hyper",
  "hyper-rustls",
  "hyper-util",
@@ -1253,7 +1253,7 @@ dependencies = [
  "bytes",
  "fastrand",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 0.4.6",
  "http-body 1.0.1",
  "http-body-util",
@@ -1274,7 +1274,7 @@ dependencies = [
  "aws-smithy-types",
  "bytes",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "pin-project-lite",
  "tokio",
  "tracing",
@@ -1300,7 +1300,7 @@ checksum = "7442cb268338f0eb8278140a107c046756aa01093d8ef5e99628d34ae09c94f5"
 dependencies = [
  "aws-smithy-runtime-api",
  "aws-smithy-types",
- "http 1.3.1",
+ "http 1.4.2",
 ]
 
 [[package]]
@@ -1314,7 +1314,7 @@ dependencies = [
  "bytes-utils",
  "futures-core",
  "http 0.2.12",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 0.4.6",
  "http-body 1.0.1",
  "http-body-util",
@@ -1363,7 +1363,7 @@ dependencies = [
  "bytes",
  "form_urlencoded",
  "futures-util",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "http-body-util",
  "hyper",
@@ -1394,7 +1394,7 @@ checksum = "59446ce19cd142f8833f856eb31f3eb097812d1479ab224f54d72428ca21ea22"
 dependencies = [
  "bytes",
  "futures-core",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "http-body-util",
  "mime",
@@ -2121,6 +2121,16 @@ name = "crc-catalog"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19d374276b40fb8bbdee95aef7c7fa6b5316ec764510eb64b8dd0e2ed0d7e7f5"
+
+[[package]]
+name = "crc-fast"
+version = "1.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e75b2483e97a5a7da73ac68a05b629f9c53cff58d8ed1c77866079e18b00dba5"
+dependencies = [
+ "digest 0.10.7",
+ "spin 0.10.0",
+]
 
 [[package]]
 name = "crc32c"
@@ -3919,7 +3929,7 @@ dependencies = [
  "fnv",
  "futures-core",
  "futures-sink",
- "http 1.3.1",
+ "http 1.4.2",
  "indexmap 2.14.0",
  "slab",
  "tokio",
@@ -4071,12 +4081,11 @@ dependencies = [
 
 [[package]]
 name = "http"
-version = "1.3.1"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4a85d31aea989eead29a3aaf9e1115a180df8282431156e533de47660892565"
+checksum = "6970f50e31d6fc17d3fa27329444bfa74e196cf62e95052a3f6fee181dba6425"
 dependencies = [
  "bytes",
- "fnv",
  "itoa",
 ]
 
@@ -4098,7 +4107,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1efedce1fb8e6913f23e0c92de8e62cd5b772a67e7b3946df930a62566c93184"
 dependencies = [
  "bytes",
- "http 1.3.1",
+ "http 1.4.2",
 ]
 
 [[package]]
@@ -4109,7 +4118,7 @@ checksum = "b021d93e26becf5dc7e1b75b1bed1fd93124b374ceb73f43d4d4eafec896a64a"
 dependencies = [
  "bytes",
  "futures-core",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "pin-project-lite",
 ]
@@ -4152,7 +4161,7 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "h2",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "httparse",
  "httpdate",
@@ -4170,7 +4179,7 @@ version = "0.27.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3c93eb611681b207e1fe55d5a71ecf91572ec8a6705cdb6857f7d8d5242cf58"
 dependencies = [
- "http 1.3.1",
+ "http 1.4.2",
  "hyper",
  "hyper-util",
  "rustls",
@@ -4206,7 +4215,7 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "futures-util",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "hyper",
  "ipnet",
@@ -4324,7 +4333,7 @@ checksum = "a49dfef578060c3a2a3f619522dcb25382a7ce85336dcb500495d4b8d72ae714"
 dependencies = [
  "async-trait",
  "chrono",
- "http 1.3.1",
+ "http 1.4.2",
  "iceberg",
  "itertools 0.13.0",
  "reqwest 0.12.28",
@@ -5159,7 +5168,7 @@ dependencies = [
  "multimap",
  "num-bigint 0.5.1",
  "num-traits",
- "opendal 0.57.0",
+ "opendal 0.58.0",
  "opentelemetry",
  "opentelemetry-otlp",
  "opentelemetry_sdk",
@@ -5668,7 +5677,7 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "futures-util",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body-util",
  "httparse",
  "humantime",
@@ -5706,7 +5715,7 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "futures-util",
- "http 1.3.1",
+ "http 1.4.2",
  "humantime",
  "itertools 0.15.0",
  "nix 0.31.3",
@@ -5753,7 +5762,7 @@ dependencies = [
  "crc32c",
  "futures",
  "getrandom 0.2.16",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "jiff",
  "log",
@@ -5771,9 +5780,9 @@ dependencies = [
 
 [[package]]
 name = "opendal"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96c9c85ce253ff87225e7669979d877a20c98a06604ec9d6dd5f4473e08f1ae1"
+checksum = "77d02c6564e376d3670aaf66ad886cd34f83c0aca407b6364777c624a63e0e2d"
 dependencies = [
  "opendal-core",
  "opendal-layer-retry",
@@ -5786,24 +5795,22 @@ dependencies = [
 
 [[package]]
 name = "opendal-core"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4f8607c90e2c963a91467f50fb49fbc7fb3d573f88cea219ca59ccd3740b309"
+checksum = "f8564bd76b75d2aea59178cb5b6e9f770be1da73b1bca062720ec151cc56215a"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
  "bytes",
  "futures",
- "http 1.3.1",
- "http-body 1.0.1",
+ "http 1.4.2",
  "jiff",
  "log",
  "md-5 0.11.0",
  "mea",
  "percent-encoding",
- "quick-xml 0.39.4",
+ "quick-xml 0.41.0",
  "reqsign-core",
- "reqwest 0.13.4",
  "serde",
  "serde_json",
  "tokio",
@@ -5814,9 +5821,9 @@ dependencies = [
 
 [[package]]
 name = "opendal-layer-retry"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b2a25a718afb81fad81cb9a0580a1cb989221fa2317f888c6a37f8dad408eb7"
+checksum = "f2df70875ab7fd6f80720d4787c49c70883cef0d81bfae947ecba88b8d1cd62e"
 dependencies = [
  "backon",
  "log",
@@ -5825,9 +5832,9 @@ dependencies = [
 
 [[package]]
 name = "opendal-layer-throttle"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20482fda00c9b808a8a56d1b64ce29a4a2cc259c2ef521a213ecb09396c269ff"
+checksum = "6f67cc55574f54cd58522695b415010eb569b1e9f14c66c388bebeca56139c7c"
 dependencies = [
  "governor",
  "opendal-core",
@@ -5835,9 +5842,9 @@ dependencies = [
 
 [[package]]
 name = "opendal-layer-timeout"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e91f731724c213af81e9d03517859c8fc47b4578e64ad61ae4f099f10fe36e3"
+checksum = "18f1bb30ab396a617ef884863b27ae91fbe966e312ce69876fa41584ab0fc5c6"
 dependencies = [
  "opendal-core",
  "tokio",
@@ -5845,9 +5852,9 @@ dependencies = [
 
 [[package]]
 name = "opendal-service-fs"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22e89a665fef0e6bd249cf5ea47fc174b7ba892159bee4b9382528b1ca873a2c"
+checksum = "3f26a923b72b96d1a3dbbe961fcad4d534bf586c3f48c583e9f35649b1b6175f"
 dependencies = [
  "bytes",
  "log",
@@ -5859,17 +5866,17 @@ dependencies = [
 
 [[package]]
 name = "opendal-service-gcs"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48de101aac565ed06af4b47903c24eafd249075553ec1fb18256751c45148d47"
+checksum = "7cbde2f65ee021ff8849e9ea864aa5cf9ef6a59f4c7a71bc774a8d89ceaa7eef"
 dependencies = [
  "async-trait",
  "bytes",
- "http 1.3.1",
+ "http 1.4.2",
  "log",
  "opendal-core",
  "percent-encoding",
- "quick-xml 0.39.4",
+ "quick-xml 0.41.0",
  "reqsign-core",
  "reqsign-file-read-tokio",
  "reqsign-google",
@@ -5880,18 +5887,18 @@ dependencies = [
 
 [[package]]
 name = "opendal-service-s3"
-version = "0.57.0"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "313d46c9f5ae70bca26b7c3e3fbb9b639292625f28af73aa016f47e788af9deb"
+checksum = "750d9cc8588c19b27c4c2c5d06d7eb6f2bff62549c48652f1f9a7603cd872377"
 dependencies = [
  "base64 0.22.1",
  "bytes",
- "crc32c",
- "http 1.3.1",
+ "crc-fast",
+ "http 1.4.2",
  "log",
  "md-5 0.11.0",
  "opendal-core",
- "quick-xml 0.39.4",
+ "quick-xml 0.41.0",
  "reqsign-aws-v4",
  "reqsign-core",
  "reqsign-file-read-tokio",
@@ -5963,7 +5970,7 @@ checksum = "5683015d09e2df236ef005b17f6f196f0d5f6313c4fa43a7b6a53b52776e4331"
 dependencies = [
  "async-trait",
  "bytes",
- "http 1.3.1",
+ "http 1.4.2",
  "opentelemetry",
  "reqwest 0.13.4",
 ]
@@ -5974,7 +5981,7 @@ version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9966929966d17620d7c316c643ba62631826e10021409357772d5eea84f62c35"
 dependencies = [
- "http 1.3.1",
+ "http 1.4.2",
  "opentelemetry",
  "opentelemetry-http",
  "opentelemetry-proto",
@@ -7159,7 +7166,7 @@ dependencies = [
  "hex",
  "hmac 0.12.1",
  "home",
- "http 1.3.1",
+ "http 1.4.2",
  "jsonwebtoken",
  "log",
  "percent-encoding",
@@ -7184,7 +7191,7 @@ dependencies = [
  "bytes",
  "form_urlencoded",
  "hex",
- "http 1.3.1",
+ "http 1.4.2",
  "log",
  "percent-encoding",
  "quick-xml 0.41.0",
@@ -7208,7 +7215,7 @@ dependencies = [
  "futures",
  "hex",
  "hmac 0.13.0",
- "http 1.3.1",
+ "http 1.4.2",
  "jiff",
  "log",
  "percent-encoding",
@@ -7237,7 +7244,7 @@ version = "3.0.1"
 source = "git+https://github.com/apache/opendal-reqsign.git?rev=4214e9715be38b9d2b8a80aa1373fc5d73bd1634#4214e9715be38b9d2b8a80aa1373fc5d73bd1634"
 dependencies = [
  "form_urlencoded",
- "http 1.3.1",
+ "http 1.4.2",
  "log",
  "percent-encoding",
  "reqsign-aws-v4",
@@ -7259,7 +7266,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "h2",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "http-body-util",
  "hyper",
@@ -7286,7 +7293,7 @@ dependencies = [
  "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
- "wasm-streams 0.4.2",
+ "wasm-streams",
  "web-sys",
  "webpki-roots",
 ]
@@ -7304,7 +7311,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "h2",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "http-body-util",
  "hyper",
@@ -7324,14 +7331,12 @@ dependencies = [
  "sync_wrapper",
  "tokio",
  "tokio-rustls",
- "tokio-util",
  "tower",
  "tower-http 0.6.11",
  "tower-service",
  "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
- "wasm-streams 0.5.0",
  "web-sys",
 ]
 
@@ -8787,7 +8792,7 @@ dependencies = [
  "base64 0.22.1",
  "bytes",
  "h2",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "http-body-util",
  "hyper",
@@ -8844,7 +8849,7 @@ dependencies = [
  "bitflags 2.13.0",
  "bytes",
  "futures-util",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "pin-project-lite",
  "tower",
@@ -8861,7 +8866,7 @@ checksum = "b11f75e912b0c2be01b63d8cf8057b8c3f97cf34abb3d431a3a4c8675498e233"
 dependencies = [
  "bitflags 2.13.0",
  "bytes",
- "http 1.3.1",
+ "http 1.4.2",
  "http-body 1.0.1",
  "percent-encoding",
  "pin-project-lite",
@@ -9324,19 +9329,6 @@ name = "wasm-streams"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15053d8d85c7eccdbefef60f06769760a563c7f0a9d6902a13d35c7800b0ad65"
-dependencies = [
- "futures-util",
- "js-sys",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
-]
-
-[[package]]
-name = "wasm-streams"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d1ec4f6517c9e11ae630e200b2b65d193279042e28edd4a2cda233e46670bbb"
 dependencies = [
  "futures-util",
  "js-sys",
