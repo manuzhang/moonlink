@@ -486,7 +486,6 @@ jobs:
   chaos_and_regression_tests:
     name: Chaos & Regression Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v7
@@ -507,6 +506,7 @@ jobs:
       # once. Running each group in sequence avoids resource-contention flakes
       # and prevents the S3/GCS chaos tests from running without their fixtures.
       - name: Run chaos and regression tests
+        timeout-minutes: 30
         run: |
           set -euo pipefail
 
