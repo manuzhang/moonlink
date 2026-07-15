@@ -503,12 +503,14 @@ jobs:
           make-default: true
 
       # Keep the existing coverage, but build the chaos-enabled test binary only
-      # once. Running each group in sequence avoids resource-contention flakes
-      # and prevents the S3/GCS chaos tests from running without their fixtures.
+      # once. Run two filter groups at a time to reduce wall-clock time without
+      # overloading the hosted runner. S3/GCS chaos tests keep their own fixtures.
       - name: Run chaos and regression tests
         timeout-minutes: 30
         run: |
           set -euo pipefail
+
+          cargo test --features=chaos-test -p moonlink --no-run
 
           filters=(
             table_handler::chaos_test::test_chaos_on_local_fs
@@ -521,7 +523,8 @@ jobs:
             table_handler::regression
           )
 
-          for filter in "${filters[@]}"; do
+          run_filter() {
+            local filter="$1"
             RUST_BACKTRACE=1 cargo test \
               "$filter" \
               --features=chaos-test \
@@ -529,7 +532,10 @@ jobs:
               -- \
               --nocapture \
               --test-threads=2
-          done
+          }
+          export -f run_filter
+
+          printf '%s\0' "${filters[@]}" | xargs -0 -n1 -P2 bash -c 'run_filter "$1"' _
 
       - name: Upload chaos dumps
         if: always()
