@@ -503,7 +503,7 @@ jobs:
           make-default: true
 
       # Keep the existing coverage, but build the chaos-enabled test binary only
-      # once. Run two filter groups at a time to reduce wall-clock time without
+      # once. Run three filter groups at a time to reduce wall-clock time without
       # overloading the hosted runner. S3/GCS chaos tests keep their own fixtures.
       - name: Run chaos and regression tests
         timeout-minutes: 30
@@ -535,7 +535,7 @@ jobs:
           }
           export -f run_filter
 
-          printf '%s\0' "${filters[@]}" | xargs -0 -n1 -P2 bash -c 'run_filter "$1"' _
+          printf '%s\0' "${filters[@]}" | xargs -0 -n1 -P3 bash -c 'run_filter "$1"' _
 
       - name: Upload chaos dumps
         if: always()
