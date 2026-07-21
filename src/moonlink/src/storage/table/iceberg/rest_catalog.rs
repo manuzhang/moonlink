@@ -158,6 +158,10 @@ impl Catalog for RestCatalog {
         self.catalog.drop_table(table).await
     }
 
+    async fn purge_table(&self, table: &TableIdent) -> IcebergResult<()> {
+        self.catalog.purge_table(table).await
+    }
+
     async fn table_exists(&self, table: &TableIdent) -> IcebergResult<bool> {
         self.catalog.table_exists(table).await
     }

@@ -386,7 +386,7 @@ mod tests {
     use std::str::FromStr;
 
     fn arrow_schema_to_iceberg_schema(schema: &arrow_schema::Schema) -> IcebergSchema {
-        let iceberg_arrow_schema = serde_json::from_value::<arrow_schema_57::Schema>(
+        let iceberg_arrow_schema = serde_json::from_value::<arrow_schema_58::Schema>(
             serde_json::to_value(schema).unwrap(),
         )
         .unwrap();
