@@ -1,5 +1,5 @@
 use arrow_schema::Schema as ArrowSchema;
-use arrow_schema_57::Schema as IcebergArrowSchema;
+use arrow_schema_58::Schema as IcebergArrowSchema;
 use iceberg::arrow as IcebergArrow;
 use iceberg::spec::Schema as IcebergSchema;
 use iceberg::{Error, ErrorKind, Result as IcebergResult};

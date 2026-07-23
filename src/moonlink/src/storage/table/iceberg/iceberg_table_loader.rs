@@ -253,16 +253,15 @@ impl IcebergTableManager {
         }
 
         // Load table state into iceberg table manager.
+        let iceberg_table = self.iceberg_table.as_ref().unwrap();
         let snapshot_meta = table_metadata.current_snapshot().unwrap();
         let snapshot_property = snapshot_utils::get_snapshot_properties(table_metadata)?;
-        let manifest_list = snapshot_meta
-            .load_manifest_list(
-                self.iceberg_table.as_ref().unwrap().file_io(),
-                table_metadata,
-            )
+        let manifest_list = iceberg_table
+            .manifest_list_reader(snapshot_meta)
+            .load()
             .await?;
 
-        let file_io = self.iceberg_table.as_ref().unwrap().file_io().clone();
+        let file_io = iceberg_table.file_io().clone();
         let mut loaded_file_indices = vec![];
 
         // On load, we do two passes on all entries.

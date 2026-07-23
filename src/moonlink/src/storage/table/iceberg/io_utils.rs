@@ -44,7 +44,7 @@ fn generate_unique_data_filepath(
         .to_str()
         .unwrap()
         .to_string();
-    let location_generator = DefaultLocationGenerator::new(table.metadata().clone())?;
+    let location_generator = DefaultLocationGenerator::new(table.metadata())?;
     let remote_filepath = location_generator.generate_location(
         /*partition_key=*/ None,
         &format!(
@@ -99,7 +99,7 @@ pub(crate) async fn upload_index_file(
         .to_str()
         .unwrap()
         .to_string();
-    let location_generator = DefaultLocationGenerator::new(table.metadata().clone()).unwrap();
+    let location_generator = DefaultLocationGenerator::new(table.metadata()).unwrap();
     let remote_filepath =
         location_generator.generate_location(/*partition_key=*/ None, &filename);
     filesystem_accessor
@@ -145,7 +145,6 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
 
             // Production environment.
             let file_io_builder = FileIOBuilder::new(Arc::new(OpenDalStorageFactory::S3 {
-                configured_scheme: "s3".to_string(),
                 customized_credential_load: None,
             }))
             .with_prop(iceberg::io::S3_ENDPOINT, "https://storage.googleapis.com")
@@ -165,7 +164,6 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
             ..
         } => {
             let mut file_io_builder = FileIOBuilder::new(Arc::new(OpenDalStorageFactory::S3 {
-                configured_scheme: "s3".to_string(),
                 customized_credential_load: None,
             }))
             .with_prop(iceberg::io::S3_REGION, region)
@@ -174,7 +172,9 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
             .with_prop(iceberg::io::S3_DISABLE_CONFIG_LOAD, "true")
             .with_prop(iceberg::io::S3_DISABLE_EC2_METADATA, "true");
             if let Some(endpoint) = endpoint {
-                file_io_builder = file_io_builder.with_prop(iceberg::io::S3_ENDPOINT, endpoint);
+                file_io_builder = file_io_builder
+                    .with_prop(iceberg::io::S3_ENDPOINT, endpoint)
+                    .with_prop(iceberg::io::S3_PATH_STYLE_ACCESS, "true");
             }
             Ok(file_io_builder.build())
         }
@@ -198,14 +198,12 @@ pub(crate) fn create_storage_factory(
                 Ok(Arc::new(OpenDalStorageFactory::Gcs))
             } else {
                 Ok(Arc::new(OpenDalStorageFactory::S3 {
-                    configured_scheme: "s3".to_string(),
                     customized_credential_load: None,
                 }))
             }
         }
         #[cfg(feature = "storage-s3")]
         StorageConfig::S3 { .. } => Ok(Arc::new(OpenDalStorageFactory::S3 {
-            configured_scheme: "s3".to_string(),
             customized_credential_load: None,
         })),
     }

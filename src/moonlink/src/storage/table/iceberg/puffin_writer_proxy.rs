@@ -20,7 +20,7 @@ use crate::storage::table::iceberg::deletion_vector_manifest_manager::DeletionVe
 use crate::storage::table::iceberg::file_index_manifest_manager::FileIndexManifestManager;
 use iceberg::io::FileIO;
 use iceberg::puffin::{CompressionCodec, PuffinWriter};
-use iceberg::spec::{FormatVersion, ManifestListWriter, Snapshot, TableMetadata};
+use iceberg::spec::{FormatVersion, ManifestList, ManifestListWriter, Snapshot, TableMetadata};
 use iceberg::Result as IcebergResult;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -74,18 +74,21 @@ async fn create_new_manifest_list_writer(
     file_io: &FileIO,
 ) -> IcebergResult<ManifestListWriter> {
     // Overwrite the old manifest list file.
-    let manifest_list_outfile = file_io.new_output(cur_snapshot.manifest_list())?;
+    let manifest_list_writer = file_io
+        .new_output(cur_snapshot.manifest_list())?
+        .writer()
+        .await?;
 
     let latest_seq_no = table_metadata.last_sequence_number();
     let manifest_list_writer = if table_metadata.format_version() == FormatVersion::V1 {
         ManifestListWriter::v1(
-            manifest_list_outfile,
+            manifest_list_writer,
             cur_snapshot.snapshot_id(),
             /*parent_snapshot_id=*/ None,
         )
     } else {
         ManifestListWriter::v2(
-            manifest_list_outfile,
+            manifest_list_writer,
             cur_snapshot.snapshot_id(),
             /*parent_snapshot_id=*/ None,
             latest_seq_no,
@@ -128,13 +131,16 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
     }
 
     let cur_snapshot = table_metadata.current_snapshot().unwrap();
-    let manifest_list = cur_snapshot
-        .load_manifest_list(file_io, table_metadata)
+    let manifest_list_content = file_io
+        .new_input(cur_snapshot.manifest_list())?
+        .read()
         .await?;
+    let manifest_list =
+        ManifestList::parse_with_version(&manifest_list_content, table_metadata.format_version())?;
 
-    // Delete existing manifest list file and rewrite.
-    let mut manifest_list_writer =
-        create_new_manifest_list_writer(table_metadata, cur_snapshot, file_io).await?;
+    // Collect the rewritten manifest list before opening the existing list for overwrite.
+    // Opening a local FileIO writer truncates the target immediately.
+    let mut manifest_files = Vec::new();
 
     // Manifest manager for data files, deletion vectors and file indices.
     let mut data_file_manifest_manager =
@@ -164,7 +170,7 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
         let manifest_entry_type =
             manifest_utils::get_manifest_entry_type(&manifest_entries, &manifest_metadata);
         if manifest_entry_type == ManifestEntryType::DataFile && data_files_to_remove.is_empty() {
-            manifest_list_writer.add_manifests([cur_manifest_file.clone()].into_iter())?;
+            manifest_files.push(cur_manifest_file.clone());
             continue;
         }
 
@@ -173,7 +179,7 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
             && deletion_vector_blobs_to_add.is_empty()
             && data_files_to_remove.is_empty()
         {
-            manifest_list_writer.add_manifests([cur_manifest_file.clone()].into_iter())?;
+            manifest_files.push(cur_manifest_file.clone());
             continue;
         }
 
@@ -182,7 +188,7 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
             && file_index_blobs_to_add.is_empty()
             && index_puffin_blobs_to_remove.is_empty()
         {
-            manifest_list_writer.add_manifests([cur_manifest_file.clone()].into_iter())?;
+            manifest_files.push(cur_manifest_file.clone());
             continue;
         }
 
@@ -209,14 +215,19 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
 
     // Attempt to finalize all existing manifest entries.
     if let Some(manifest_file) = data_file_manifest_manager.finalize().await? {
-        manifest_list_writer.add_manifests(std::iter::once(manifest_file))?;
+        manifest_files.push(manifest_file);
     }
     if let Some(manifest_file) = deletion_vector_manifest_manager.finalize().await? {
-        manifest_list_writer.add_manifests(std::iter::once(manifest_file))?;
+        manifest_files.push(manifest_file);
     }
     if let Some(manifest_file) = file_index_manifest_manager.finalize().await? {
-        manifest_list_writer.add_manifests(std::iter::once(manifest_file))?;
+        manifest_files.push(manifest_file);
     }
+
+    // Rewrite the existing manifest list only after all manifest reads and rewrites succeed.
+    let mut manifest_list_writer =
+        create_new_manifest_list_writer(table_metadata, cur_snapshot, file_io).await?;
+    manifest_list_writer.add_manifests(manifest_files.into_iter())?;
 
     // Flush the manifest list, there's no need to rewrite metadata.
     manifest_list_writer.close().await?;
