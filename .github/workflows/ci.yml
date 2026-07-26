@@ -65,18 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: [feature, chaos]
-        include:
-          - type: feature
-            name: GCS feature test
-            timeout-minutes: 10
-            cmd: |
-              RUST_BACKTRACE=1 cargo test --lib --features=storage-gcs
-          - type: chaos
-            name: GCS chaos test
-            timeout-minutes: 10
-            cmd: |
-              RUST_BACKTRACE=1 cargo test test_gcs_chaos --features=chaos-test,storage-gcs -p moonlink -- --nocapture
+        type: ${{ fromJSON(github.event_name == 'pull_request' && '["feature"]' || '["feature", "chaos"]') }}
     steps:
       - uses: actions/checkout@v7
 
@@ -125,10 +114,17 @@ jobs:
           exit 1
 
       # ────────────────────── Toolchain + Test Tools ─────────────────────────
-      - name: Run ${{ matrix.name }}
-        timeout-minutes: ${{ matrix.timeout-minutes }}
+      - name: Run GCS feature test
+        if: ${{ matrix.type == 'feature' }}
+        timeout-minutes: 10
         run: |
-          ${{ matrix.cmd }}
+          RUST_BACKTRACE=1 cargo test --lib --features=storage-gcs
+
+      - name: Run GCS chaos test
+        if: ${{ matrix.type == 'chaos' }}
+        timeout-minutes: 10
+        run: |
+          RUST_BACKTRACE=1 cargo test test_gcs_chaos --features=chaos-test,storage-gcs -p moonlink -- --nocapture
 
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
@@ -146,18 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: [feature, chaos]
-        include:
-          - type: feature
-            name: S3 feature test
-            timeout-minutes: 10
-            cmd: |
-              RUST_BACKTRACE=1 cargo test --lib --features=storage-s3
-          - type: chaos
-            name: S3 chaos test
-            cmd: |
-              RUST_BACKTRACE=1 cargo test storage::filesystem::accessor -p moonlink --features=chaos-test
-              RUST_BACKTRACE=1 cargo test test_s3_chaos --features=chaos-test,storage-s3 -p moonlink -- --nocapture
+        type: ${{ fromJSON(github.event_name == 'pull_request' && '["feature"]' || '["feature", "chaos"]') }}
     steps:
       - uses: actions/checkout@v7
 
@@ -206,16 +191,17 @@ jobs:
           exit 1
 
       # ────────────────────── Toolchain + Test Tools ─────────────────────────
-      - name: Run ${{ matrix.name }}
+      - name: Run S3 feature test
         if: ${{ matrix.type == 'feature' }}
-        timeout-minutes: ${{ matrix.timeout-minutes }}
+        timeout-minutes: 10
         run: |
-          ${{ matrix.cmd }}
+          RUST_BACKTRACE=1 cargo test --lib --features=storage-s3
 
-      - name: Run ${{ matrix.name }}
+      - name: Run S3 chaos test
         if: ${{ matrix.type == 'chaos' }}
         run: |
-          ${{ matrix.cmd }}
+          RUST_BACKTRACE=1 cargo test storage::filesystem::accessor -p moonlink --features=chaos-test
+          RUST_BACKTRACE=1 cargo test test_s3_chaos --features=chaos-test,storage-s3 -p moonlink -- --nocapture
 
       #  ────────────────────── Upload chaos dump ────────────────────────────
       - name: Upload chaos dumps
@@ -502,15 +488,27 @@ jobs:
           mold-version: 2.40.3
           make-default: true
 
-      # Keep the existing coverage, but build the chaos-enabled test binary only
-      # once. Run two filter groups at a time to reduce wall-clock time without
-      # overloading the hosted runner. S3/GCS chaos tests keep their own fixtures.
-      - name: Run chaos and regression tests
+      - name: Build chaos and regression tests
+        run: cargo test --features=chaos-test -p moonlink --no-run
+
+      - name: Run regression tests
+        timeout-minutes: 10
+        run: |
+          RUST_BACKTRACE=1 cargo test \
+            table_handler::regression \
+            --features=chaos-test \
+            -p moonlink \
+            -- \
+            --nocapture \
+            --test-threads=2
+
+      # Keep the full chaos suite on main while avoiding the long, randomized
+      # workload on pull requests.
+      - name: Run chaos tests
+        if: ${{ github.event_name != 'pull_request' }}
         timeout-minutes: 30
         run: |
           set -euo pipefail
-
-          cargo test --features=chaos-test -p moonlink --no-run
 
           filters=(
             table_handler::chaos_test::test_chaos_on_local_fs
@@ -520,7 +518,6 @@ jobs:
             table_handler::chaos_test::test_append_only_chaos
             table_handler::chaos_test::test_upsert_chaos
             table_handler::chaos_test::test_replay_chaos
-            table_handler::regression
           )
 
           run_filter() {
@@ -637,7 +634,8 @@ jobs:
         run: |
           RUST_BACKTRACE=1 cargo test --package moonlink_backend --test '*'
 
-      - name: Run postgres bulk ingestion integration test
+      - name: Run PostgreSQL bulk-ingestion stress test
+        if: ${{ github.event_name != 'pull_request' }}
         # TODO(hjiang): Update after we figure out the regression change.
         timeout-minutes: 10
         env:
@@ -652,16 +650,7 @@ jobs:
 
     strategy:
       matrix:
-        type: [integration, stress]
-        include:
-          - type: integration
-            name: REST server integration test
-            timeout: 10
-            command: RUST_BACKTRACE=1 cargo test --package moonlink_service --lib --features standalone-test -- --nocapture
-          - type: stress
-            name: REST server stress test
-            timeout: 25
-            command: RUST_BACKTRACE=1 cargo test stress_test --release --package moonlink_service --lib --features standalone-test,stress-test -- --nocapture
+        type: ${{ fromJSON(github.event_name == 'pull_request' && '["integration"]' || '["integration", "stress"]') }}
 
     steps:
       - uses: actions/checkout@v7
@@ -716,9 +705,18 @@ jobs:
           echo "ERROR: nginx failed to start."
           exit 1
 
-      - name: Run ${{ matrix.name }} tests
-        timeout-minutes: ${{ matrix.timeout }}
+      - name: Run REST server integration tests
+        if: ${{ matrix.type == 'integration' }}
+        timeout-minutes: 10
         env:
           MOONLINK_BACKEND_DIR: ${{ github.workspace }}/.shared-nginx
           NGINX_ADDR: http://nginx.local:80
-        run: ${{ matrix.command }}
+        run: RUST_BACKTRACE=1 cargo test --package moonlink_service --lib --features standalone-test -- --nocapture
+
+      - name: Run REST server stress tests
+        if: ${{ matrix.type == 'stress' }}
+        timeout-minutes: 25
+        env:
+          MOONLINK_BACKEND_DIR: ${{ github.workspace }}/.shared-nginx
+          NGINX_ADDR: http://nginx.local:80
+        run: RUST_BACKTRACE=1 cargo test stress_test --release --package moonlink_service --lib --features standalone-test,stress-test -- --nocapture
