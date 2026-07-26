@@ -675,7 +675,10 @@ impl Catalog for FileCatalog {
             .identifier(commit.identifier().clone())
             .file_io(self.file_io.clone())
             .metadata(metadata)
-            .metadata_location(metadata_filepath)
+            .metadata_location(format!(
+                "{}/{}",
+                self.warehouse_location, new_metadata_filepath
+            ))
             .runtime(iceberg::Runtime::try_current()?)
             .build()
     }

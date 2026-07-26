@@ -270,6 +270,13 @@ pub(crate) async fn test_update_table_impl(
     assert_eq!(**table_metadata.current_schema(), get_test_schema(),);
     assert_eq!(table.identifier(), &table_ident,);
     assert_eq!(table_metadata.current_snapshot_id(), Some(1),);
+
+    let reloaded_table = catalog.load_table(&table_ident).await.unwrap();
+    assert_eq!(
+        table.metadata_location(),
+        reloaded_table.metadata_location(),
+        "updated table should point to the metadata file persisted by the catalog"
+    );
 }
 
 pub(crate) async fn test_update_schema_impl(
