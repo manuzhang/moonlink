@@ -196,15 +196,15 @@ pub(crate) async fn dump_deletion_vector_puffin(
     ]);
     let blob = iceberg_deletion_vector.serialize(blob_properties);
     let blob_size = blob.data().len();
-    let mut puffin_writer =
-        puffin_utils::create_puffin_writer(&FileIO::new_with_fs(), &puffin_filepath)
-            .await
-            .unwrap();
+    let file_io = FileIO::new_with_fs();
+    let mut puffin_writer = puffin_utils::create_puffin_writer(&file_io, &puffin_filepath)
+        .await
+        .unwrap();
     puffin_writer
         .add(blob, CompressionCodec::None)
         .await
         .unwrap();
-    puffin_writer_proxy::get_puffin_metadata_and_close(puffin_writer)
+    puffin_writer_proxy::get_puffin_metadata_and_close(puffin_writer, &file_io, &puffin_filepath)
         .await
         .unwrap();
 

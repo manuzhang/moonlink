@@ -1,7 +1,9 @@
 // iceberg-rust currently doesn't support puffin related features, to write deletion vector into iceberg metadata, we need two things at least:
 // 1. the start offset and blob size for each deletion vector
 // 2. append blob metadata into manifest file
-// So here to workaround the limitation and to avoid/reduce changes to iceberg-rust ourselves, we use a proxy type to read the writer's metadata before closing it.
+// So here to workaround the limitation and to avoid/reduce changes to iceberg-rust ourselves, we
+// close the writer, read its public file metadata, and convert it to the representation used by the
+// manifest managers.
 //
 // deletion vector spec:
 // issue collection: https://github.com/apache/iceberg/issues/11122
@@ -19,18 +21,11 @@ use crate::storage::table::iceberg::data_file_manifest_manager::DataFileManifest
 use crate::storage::table::iceberg::deletion_vector_manifest_manager::DeletionVectorManifestManager;
 use crate::storage::table::iceberg::file_index_manifest_manager::FileIndexManifestManager;
 use iceberg::io::FileIO;
-use iceberg::puffin::{CompressionCodec, PuffinWriter};
+use iceberg::puffin::{BlobMetadata, CompressionCodec, PuffinReader, PuffinWriter};
 use iceberg::spec::{FormatVersion, ManifestList, ManifestListWriter, Snapshot, TableMetadata};
 use iceberg::Result as IcebergResult;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-#[allow(dead_code)]
-enum PuffinFlagProxy {
-    FooterPayloadCompressed = 0,
-}
-
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct PuffinBlobMetadataProxy {
     pub(crate) r#type: String,
     pub(crate) fields: Vec<i32>,
@@ -42,29 +37,37 @@ pub(crate) struct PuffinBlobMetadataProxy {
     pub(crate) properties: HashMap<String, String>,
 }
 
-#[allow(dead_code)]
-struct PuffinWriterProxy {
-    writer: Box<dyn iceberg::io::FileWrite>,
-    is_header_written: bool,
-    num_bytes_written: u64,
-    written_blobs_metadata: Vec<PuffinBlobMetadataProxy>,
-    properties: HashMap<String, String>,
-    footer_compression_codec: CompressionCodec,
-    flags: std::collections::HashSet<PuffinFlagProxy>,
+impl From<&BlobMetadata> for PuffinBlobMetadataProxy {
+    fn from(metadata: &BlobMetadata) -> Self {
+        Self {
+            r#type: metadata.blob_type().to_string(),
+            fields: metadata.fields().to_vec(),
+            snapshot_id: metadata.snapshot_id(),
+            sequence_number: metadata.sequence_number(),
+            offset: metadata.offset(),
+            length: metadata.length(),
+            compression_codec: metadata.compression_codec(),
+            properties: metadata.properties().clone(),
+        }
+    }
 }
 
 /// Get puffin blob metadata within the puffin write, and close the writer.
 /// This function is supposed to be called after all blobs added.
 pub(crate) async fn get_puffin_metadata_and_close(
     puffin_writer: PuffinWriter,
+    file_io: &FileIO,
+    puffin_filepath: &str,
 ) -> IcebergResult<Vec<PuffinBlobMetadataProxy>> {
-    let puffin_writer_proxy =
-        unsafe { std::mem::transmute::<PuffinWriter, PuffinWriterProxy>(puffin_writer) };
-    let puffin_metadata = puffin_writer_proxy.written_blobs_metadata.clone();
-    let puffin_writer =
-        unsafe { std::mem::transmute::<PuffinWriterProxy, PuffinWriter>(puffin_writer_proxy) };
     puffin_writer.close().await?;
-    Ok(puffin_metadata)
+    let puffin_reader = PuffinReader::new(file_io.new_input(puffin_filepath)?);
+    Ok(puffin_reader
+        .file_metadata()
+        .await?
+        .blobs()
+        .iter()
+        .map(PuffinBlobMetadataProxy::from)
+        .collect())
 }
 
 /// Util function to create manifest list writer and delete current one.
@@ -233,4 +236,59 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
     manifest_list_writer.close().await?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use iceberg::puffin::Blob;
+    use tempfile::tempdir;
+
+    #[tokio::test]
+    async fn test_get_puffin_metadata_after_close() {
+        let temp_dir = tempdir().unwrap();
+        let puffin_filepath = temp_dir.path().join("test.puffin");
+        let puffin_filepath = puffin_filepath.to_str().unwrap();
+        let file_io = FileIO::new_with_fs();
+        let output_file = file_io.new_output(puffin_filepath).unwrap();
+        let mut writer = PuffinWriter::new(&output_file, HashMap::new(), false)
+            .await
+            .unwrap();
+
+        let properties = HashMap::from([("key".to_string(), "value".to_string())]);
+        let blob_data = vec![1, 2, 3, 4];
+        writer
+            .add(
+                Blob::builder()
+                    .r#type("test-blob".to_string())
+                    .fields(vec![7, 8])
+                    .snapshot_id(11)
+                    .sequence_number(12)
+                    .data(blob_data.clone())
+                    .properties(properties.clone())
+                    .build(),
+                CompressionCodec::None,
+            )
+            .await
+            .unwrap();
+
+        let metadata = get_puffin_metadata_and_close(writer, &file_io, puffin_filepath)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            metadata,
+            vec![PuffinBlobMetadataProxy {
+                r#type: "test-blob".to_string(),
+                fields: vec![7, 8],
+                snapshot_id: 11,
+                sequence_number: 12,
+                offset: 4,
+                length: blob_data.len() as u64,
+                compression_codec: CompressionCodec::None,
+                properties,
+            }]
+        );
+    }
 }

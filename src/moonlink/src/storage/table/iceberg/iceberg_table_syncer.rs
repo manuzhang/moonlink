@@ -152,7 +152,9 @@ async fn import_one_file_index(
     puffin_writer
         .add(puffin_blob, iceberg::puffin::CompressionCodec::None)
         .await?;
-    let puffin_metadata = get_puffin_metadata_and_close(puffin_writer).await?;
+    let puffin_metadata =
+        get_puffin_metadata_and_close(puffin_writer, iceberg_table.file_io(), &puffin_filepath)
+            .await?;
 
     Ok(SingleFileIndexImportResult {
         local_index_file_to_remote,
@@ -422,7 +424,12 @@ impl IcebergTableManager {
         )
         .await?;
         puffin_writer.add(blob, CompressionCodec::None).await?;
-        let puffin_metadata = get_puffin_metadata_and_close(puffin_writer).await?;
+        let puffin_metadata = get_puffin_metadata_and_close(
+            puffin_writer,
+            self.iceberg_table.as_ref().unwrap().file_io(),
+            &puffin_filepath,
+        )
+        .await?;
         Ok(PreparedDeletionVectorBlob {
             data_file,
             puffin_index,
