@@ -4201,9 +4201,9 @@ dependencies = [
 
 [[package]]
 name = "iceberg"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4ed93c6be93e47ba2d8928b8cefe972932668940478f6be93eca6ade52c4e8a"
+checksum = "6e50fb53c7480f414911ab76b6e14c0042d54ad5c30f6ac2bf2f52a487a25716"
 dependencies = [
  "aes-gcm",
  "anyhow",
@@ -4258,9 +4258,9 @@ dependencies = [
 
 [[package]]
 name = "iceberg-catalog-glue"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1ece848a9013236cefd30815e261db00c47e4b8dd83bd60f4ab306c26aeb005"
+checksum = "3b790f90bd24604cc7b6e88c96d1ac81082ef2790f526735f183419fdff5ee03"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4274,9 +4274,9 @@ dependencies = [
 
 [[package]]
 name = "iceberg-catalog-rest"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e1b94fd46e309f0a728c32f9f7005a230937d4c8b039a85258074ec40c45614"
+checksum = "d1500a26a9b18f286a319e914ce7290dddb7e2eef810edf535afc4ce0c8a6f45"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4294,9 +4294,9 @@ dependencies = [
 
 [[package]]
 name = "iceberg-storage-opendal"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cbf3a44173031681bbb0775299bb487b0c3aa937cb55959325ea980757acb1e1"
+checksum = "983efbae430ed40c074af69a8b0aff99bee73e54686cf26ecde97f84127812a2"
 dependencies = [
  "anyhow",
  "async-trait",
