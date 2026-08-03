@@ -506,18 +506,20 @@ jobs:
       # workload on pull requests.
       - name: Run chaos tests
         if: ${{ github.event_name != 'pull_request' }}
-        timeout-minutes: 30
+        timeout-minutes: 40
         run: |
           set -euo pipefail
 
+          # Start the historically slow filters first so the two-worker queue
+          # does not leave a long-running filter until the end of the step.
           filters=(
-            table_handler::chaos_test::test_chaos_on_local_fs
+            table_handler::chaos_test::test_replay_chaos
+            table_handler::chaos_test::test_upsert_chaos
             table_handler::chaos_test::test_local_system_optimization_chaos
             table_handler::chaos_test::test_chaos_injection
-            table_handler::chaos_test::test_disk_slice_chaos
             table_handler::chaos_test::test_append_only_chaos
-            table_handler::chaos_test::test_upsert_chaos
-            table_handler::chaos_test::test_replay_chaos
+            table_handler::chaos_test::test_chaos_on_local_fs
+            table_handler::chaos_test::test_disk_slice_chaos
           )
 
           run_filter() {
