@@ -13,6 +13,10 @@ use opendal::services;
 use opendal::Operator;
 
 fn create_opendal_operator_impl(storage_config: &StorageConfig) -> Result<Operator> {
+    // OpenDAL 0.58 requires applications without auto-registration to install
+    // the enabled HTTP transport before constructing S3 or GCS operators.
+    opendal::install_default();
+
     match storage_config {
         #[cfg(feature = "storage-fs")]
         StorageConfig::FileSystem {
@@ -23,7 +27,7 @@ fn create_opendal_operator_impl(storage_config: &StorageConfig) -> Result<Operat
             if let Some(atomic_write_dir) = atomic_write_dir {
                 builder = builder.atomic_write_dir(atomic_write_dir);
             }
-            Ok(Operator::new(builder)?.finish())
+            Ok(Operator::new(builder)?)
         }
         #[cfg(feature = "storage-gcs")]
         StorageConfig::Gcs {
@@ -44,7 +48,7 @@ fn create_opendal_operator_impl(storage_config: &StorageConfig) -> Result<Operat
                     .disable_config_load()
                     .disable_vm_metadata()
                     .skip_signature();
-                return Ok(Operator::new(builder)?.finish());
+                return Ok(Operator::new(builder)?);
             }
 
             let builder = services::S3::default()
@@ -56,7 +60,7 @@ fn create_opendal_operator_impl(storage_config: &StorageConfig) -> Result<Operat
                 .secret_access_key(secret_access_key)
                 .disable_config_load()
                 .disable_ec2_metadata();
-            Ok(Operator::new(builder)?.finish())
+            Ok(Operator::new(builder)?)
         }
         #[cfg(feature = "storage-s3")]
         StorageConfig::S3 {
@@ -76,7 +80,7 @@ fn create_opendal_operator_impl(storage_config: &StorageConfig) -> Result<Operat
             if let Some(endpoint) = endpoint {
                 builder = builder.endpoint(endpoint);
             }
-            Ok(Operator::new(builder)?.finish())
+            Ok(Operator::new(builder)?)
         }
     }
 }
@@ -117,12 +121,12 @@ pub(crate) async fn create_opendal_operator(accessor_config: &AccessorConfig) ->
         let throttle_layer = create_throttle_layer(throttle_config);
         op = op.layer(throttle_layer);
     }
-    // Apply retry layer.
-    let retry_layer = create_retry_layer(&accessor_config.retry_config);
-    op = op.layer(retry_layer);
     // Apply timeout layer.
     let timeout_layer = create_timeout_layer(&accessor_config.timeout_config);
     op = op.layer(timeout_layer);
+    // Apply retry layer after timeout so timed-out attempts can be retried safely.
+    let retry_layer = create_retry_layer(&accessor_config.retry_config);
+    op = op.layer(retry_layer);
 
     Ok(op)
 }
