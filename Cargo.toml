@@ -69,7 +69,7 @@ nix = { version = "0.31", default-features = false, features = ["fs"] }
 num-bigint = "0.5"
 num-traits = "0.2"
 object_store = "0.14"
-opendal = { version = "0.57", default-features = false, features = [
+opendal = { version = "0.58", default-features = false, features = [
   "executors-tokio",
   "layers-retry",
   "layers-throttle",
