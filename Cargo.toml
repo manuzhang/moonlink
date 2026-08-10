@@ -71,6 +71,7 @@ num-traits = "0.2"
 object_store = "0.14"
 opendal = { version = "0.58", default-features = false, features = [
   "executors-tokio",
+  "http-transport-reqwest",
   "layers-retry",
   "layers-throttle",
   "layers-timeout",

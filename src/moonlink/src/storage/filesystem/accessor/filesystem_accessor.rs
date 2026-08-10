@@ -312,7 +312,7 @@ impl BaseFileSystemAccess for FileSystemAccessor {
         let expected_len = content.len();
 
         // Conditional write is not supported for all storage backends, if not supported, fallback to [`write_object`].
-        if !operator.info().full_capability().write_with_if_match {
+        if !operator.info().capability().write_with_if_match {
             return self.write_object(object, content).await;
         }
 

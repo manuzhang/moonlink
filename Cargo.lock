@@ -5729,6 +5729,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f20562cc7447fcc915fc5c23df305a412ea80a733c9f2fd9e2d267e2815be6d"
 dependencies = [
  "opendal-core 0.58.1",
+ "opendal-http-transport-reqwest",
  "opendal-layer-retry 0.58.1",
  "opendal-layer-throttle",
  "opendal-layer-timeout 0.58.1",
@@ -5789,6 +5790,20 @@ dependencies = [
  "url",
  "uuid",
  "web-time",
+]
+
+[[package]]
+name = "opendal-http-transport-reqwest"
+version = "0.58.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad4d4f19c3ce01126a30611f8e544eaa217104a278c889ac17c9374fe4f9e4ef"
+dependencies = [
+ "bytes",
+ "futures",
+ "http 1.5.0",
+ "http-body 1.0.1",
+ "opendal-core 0.58.1",
+ "reqwest 0.13.4",
 ]
 
 [[package]]
