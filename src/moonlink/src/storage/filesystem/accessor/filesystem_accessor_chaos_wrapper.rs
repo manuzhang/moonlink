@@ -139,6 +139,7 @@ pub struct ChaosReader<R> {
 pub struct ChaosLister<L> {
     chaos_generator: ChaosGenerator,
     inner: L,
+    is_first_poll: bool,
 }
 
 impl<L> ChaosLister<L> {
@@ -146,13 +147,17 @@ impl<L> ChaosLister<L> {
         Self {
             chaos_generator,
             inner,
+            is_first_poll: true,
         }
     }
 }
 
 impl<L: oio::List> oio::List for ChaosLister<L> {
     async fn next(&mut self) -> Result<Option<oio::Entry>> {
-        self.chaos_generator.perform_wrapper_function().await?;
+        if self.is_first_poll {
+            self.chaos_generator.perform_wrapper_function().await?;
+            self.is_first_poll = false;
+        }
         self.inner.next().await
     }
 }
@@ -201,12 +206,42 @@ impl<R: opendal::raw::oio::Read> opendal::raw::oio::Read for ChaosReader<R> {
         range: BytesRange,
     ) -> Result<(RpRead, Box<dyn opendal::raw::oio::ReadStreamDyn>)> {
         self.chaos_generator.perform_wrapper_function().await?;
-        self.inner.open(range).await
+        self.inner.open(range).await.map(|(rp, stream)| {
+            (
+                rp,
+                Box::new(ChaosReadStream::new(stream, self.chaos_generator.clone()))
+                    as Box<dyn oio::ReadStreamDyn>,
+            )
+        })
     }
 
     async fn read(&self, range: BytesRange) -> Result<(RpRead, opendal::Buffer)> {
         self.chaos_generator.perform_wrapper_function().await?;
         self.inner.read(range).await
+    }
+}
+
+/// ==========================
+/// Chaos read stream
+/// ==========================
+pub struct ChaosReadStream<S> {
+    chaos_generator: ChaosGenerator,
+    inner: S,
+}
+
+impl<S> ChaosReadStream<S> {
+    fn new(inner: S, chaos_generator: ChaosGenerator) -> Self {
+        Self {
+            chaos_generator,
+            inner,
+        }
+    }
+}
+
+impl<S: oio::ReadStream> oio::ReadStream for ChaosReadStream<S> {
+    async fn read(&mut self) -> Result<opendal::Buffer> {
+        self.chaos_generator.perform_wrapper_function().await?;
+        self.inner.read().await
     }
 }
 
