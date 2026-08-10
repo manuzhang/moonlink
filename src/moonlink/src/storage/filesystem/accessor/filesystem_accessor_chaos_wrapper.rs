@@ -168,6 +168,7 @@ impl<L: oio::List> oio::List for ChaosLister<L> {
 pub struct ChaosDeleter<D> {
     chaos_generator: ChaosGenerator,
     inner: D,
+    is_first_operation: bool,
 }
 
 impl<D> ChaosDeleter<D> {
@@ -175,18 +176,27 @@ impl<D> ChaosDeleter<D> {
         Self {
             chaos_generator,
             inner,
+            is_first_operation: true,
         }
+    }
+
+    async fn inject_chaos_once(&mut self) -> Result<()> {
+        if self.is_first_operation {
+            self.chaos_generator.perform_wrapper_function().await?;
+            self.is_first_operation = false;
+        }
+        Ok(())
     }
 }
 
 impl<D: oio::Delete> oio::Delete for ChaosDeleter<D> {
     async fn delete(&mut self, path: &str, args: OpDelete) -> Result<()> {
-        self.chaos_generator.perform_wrapper_function().await?;
+        self.inject_chaos_once().await?;
         self.inner.delete(path, args).await
     }
 
     async fn close(&mut self) -> Result<()> {
-        self.chaos_generator.perform_wrapper_function().await?;
+        self.inject_chaos_once().await?;
         self.inner.close().await
     }
 }
