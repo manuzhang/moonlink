@@ -6,7 +6,7 @@ use crate::rest_ingest::event_request::{
 use crate::rest_ingest::json_converter::{JsonToMoonlinkRowConverter, JsonToMoonlinkRowError};
 use crate::rest_ingest::rest_event::RestEvent;
 use crate::Result;
-use apache_avro::from_avro_datum;
+use apache_avro::reader::datum::GenericDatumReader;
 use apache_avro::schema::Schema as AvroSchema;
 use arrow_schema::Schema;
 use async_stream::stream;
@@ -370,7 +370,9 @@ impl RestSource {
                     // Decode a single datum - assumes single record per message
                     // On the kafka side we are already stripping any magic bytes and schema headers
                     let mut cursor = std::io::Cursor::new(bytes.as_slice());
-                    from_avro_datum(avro_schema, &mut cursor, None)
+                    GenericDatumReader::builder(avro_schema)
+                        .build()
+                        .and_then(|reader| reader.read_value(&mut cursor))
                         .map_err(|e| RestSourceError::AvroError(Box::new(e)))?
                 };
 
