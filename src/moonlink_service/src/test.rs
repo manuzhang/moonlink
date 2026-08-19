@@ -1,4 +1,3 @@
-use apache_avro::writer::datum::GenericDatumWriter;
 use moonlink::row::{moonlink_row_to_proto, MoonlinkRow, RowValue};
 use more_asserts as ma;
 use serde_json::json;
@@ -1052,10 +1051,11 @@ async fn stress_test_kafka_avro_stress_ingest() {
                         ]),
                     ),
                 ]);
-                let bytes = GenericDatumWriter::builder(&avro_schema_cloned)
-                    .build()
-                    .and_then(|writer| writer.write_value_to_vec(record))
-                    .unwrap();
+                let bytes =
+                    apache_avro::writer::datum::GenericDatumWriter::builder(&avro_schema_cloned)
+                        .build()
+                        .and_then(|writer| writer.write_value_to_vec(record))
+                        .unwrap();
                 let resp = client_cloned
                     .post(format!("{REST_ADDR}/kafka/{table_path}/ingest"))
                     .header("content-type", "application/octet-stream")
@@ -1361,10 +1361,11 @@ async fn stress_test_kafka_stress_10min_long_running() {
                         ),
                     ]);
 
-                    let bytes = GenericDatumWriter::builder(&avro_schema)
-                        .build()
-                        .and_then(|writer| writer.write_value_to_vec(avro_record))
-                        .unwrap();
+                    let bytes =
+                        apache_avro::writer::datum::GenericDatumWriter::builder(&avro_schema)
+                            .build()
+                            .and_then(|writer| writer.write_value_to_vec(avro_record))
+                            .unwrap();
                     let resp = client
                         .post(format!("{REST_ADDR}/kafka/{crafted_src_table_name}/ingest"))
                         .header("content-type", "application/octet-stream")
