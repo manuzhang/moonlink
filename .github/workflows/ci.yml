@@ -167,7 +167,7 @@ jobs:
             -p 9000:9000 \
             -e MINIO_ROOT_USER=minioadmin \
             -e MINIO_ROOT_PASSWORD=minioadmin \
-            minio/minio:latest server /data
+            quay.io/minio/minio:latest server /data
 
       # ─────────────── Add hostnames to /etc/hosts ──────────────────────────
       - name: Add s3.local to /etc/hosts
@@ -250,7 +250,7 @@ jobs:
             -p 9000:9000 \
             -e MINIO_ROOT_USER=minioadmin \
             -e MINIO_ROOT_PASSWORD=minioadmin \
-            minio/minio:latest server /data
+            quay.io/minio/minio:latest server /data
 
       # ─────────────── Add hostnames to /etc/hosts ──────────────────────────
       - name: Add s3.local to /etc/hosts
