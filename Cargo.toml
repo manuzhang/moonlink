@@ -78,7 +78,7 @@ opendal = { version = "0.58", default-features = false, features = [
   "layers-throttle",
   "layers-timeout",
 ] }
-opentelemetry = { version = "0.32", default-features = false, features = [
+opentelemetry = { version = "0.33", default-features = false, features = [
   "trace",
   "metrics",
 ] }
