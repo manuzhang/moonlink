@@ -9,7 +9,9 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use aws_credential_types::Credentials;
-use aws_sigv4::http_request::{sign, SignableBody, SignableRequest, SigningSettings};
+use aws_sigv4::http_request::{
+    sign, PayloadChecksumKind, SignableBody, SignableRequest, SigningSettings,
+};
 use aws_sigv4::sign::v4::SigningParams;
 use iceberg::{Error as IcebergError, Result as IcebergResult};
 use std::time::SystemTime;
@@ -81,12 +83,14 @@ async fn s3_bucket_request(method: &str, bucket: &str) -> IcebergResult<()> {
         "moonlink-test",
     );
     let identity = credentials.into();
+    let mut signing_settings = SigningSettings::default();
+    signing_settings.payload_checksum_kind = PayloadChecksumKind::XAmzSha256;
     let params = SigningParams::builder()
         .identity(&identity)
         .region(S3_TEST_REGION)
         .name("s3")
         .time(SystemTime::now())
-        .settings(SigningSettings::default())
+        .settings(signing_settings)
         .build()
         .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?;
     let signable = SignableRequest::new(method, &url, std::iter::empty(), SignableBody::Bytes(&[]))
