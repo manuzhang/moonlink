@@ -20,6 +20,8 @@ license = "LicenseRef-BSL-1.1"
 
 [workspace.dependencies]
 anyhow = "1.0"
+aws-credential-types = "1.2.4"
+aws-sigv4 = "1.4.4"
 apache-avro = "0.22"
 arrow = { version = "60", default-features = false, features = [
   "canonical_extension_types",

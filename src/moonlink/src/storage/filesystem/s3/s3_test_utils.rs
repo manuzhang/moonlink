@@ -8,19 +8,16 @@ use crate::storage::filesystem::{
 use std::sync::Arc;
 use std::time::Duration;
 
-use base64::engine::general_purpose::STANDARD as base64;
-use base64::Engine;
-use chrono::Utc;
-use hmac::{Hmac, KeyInit, Mac};
+use aws_credential_types::Credentials;
+use aws_sigv4::http_request::{sign, SignableBody, SignableRequest, SigningSettings};
+use aws_sigv4::sign::v4::SigningParams;
 use iceberg::{Error as IcebergError, Result as IcebergResult};
-use sha1::Sha1;
+use std::time::SystemTime;
 
 use backon::{ExponentialBuilder, Retryable};
 use tokio::time::sleep;
 
-type HmacSha1 = Hmac<Sha1>;
-
-/// Minio related constants.
+/// S3-compatible test storage constants.
 ///
 /// Local minio warehouse needs special handling, so we simply prefix with special token.
 pub(crate) static S3_TEST_BUCKET_PREFIX: &str = "test-minio-warehouse-";
@@ -48,29 +45,7 @@ pub(crate) fn get_test_s3_bucket_and_warehouse() -> (String, String) {
 }
 
 async fn create_test_s3_bucket_impl(bucket: Arc<String>) -> IcebergResult<()> {
-    let date = Utc::now().format("%a, %d %b %Y %T GMT").to_string();
-    let string_to_sign = format!("PUT\n\n\n{date}\n/{bucket}");
-
-    let mut mac = HmacSha1::new_from_slice(S3_TEST_SECRET_ACCESS_KEY.as_bytes()).unwrap();
-    mac.update(string_to_sign.as_bytes());
-    let signature = base64.encode(mac.finalize().into_bytes());
-
-    let auth_header = format!("AWS {S3_TEST_ACCESS_KEY_ID}:{signature}");
-    let url = format!("{S3_TEST_ENDPOINT}/{bucket}");
-    let client = reqwest::Client::new();
-
-    client
-        .put(&url)
-        .header("Authorization", auth_header)
-        .header("Date", date)
-        .send()
-        .await
-        .map_err(|e| {
-            IcebergError::new(
-                iceberg::ErrorKind::Unexpected,
-                format!("Failed to create bucket {bucket} in minio with url {url}: {e}"),
-            )
-        })?;
+    s3_bucket_request("PUT", &bucket).await?;
 
     Ok(())
 }
@@ -91,31 +66,56 @@ async fn delete_test_s3_bucket_impl(bucket: Arc<String>) -> IcebergResult<()> {
     // Delete all objects in the bucket first.
     delete_s3_bucket_objects(&bucket).await?;
 
-    // Now delete the bucket.
-    let date = Utc::now().format("%a, %d %b %Y %T GMT").to_string();
-    let string_to_sign = format!("DELETE\n\n\n{date}\n/{bucket}");
+    s3_bucket_request("DELETE", &bucket).await?;
 
-    let mut mac = HmacSha1::new_from_slice(S3_TEST_SECRET_ACCESS_KEY.as_bytes()).unwrap();
-    mac.update(string_to_sign.as_bytes());
-    let signature = base64.encode(mac.finalize().into_bytes());
+    Ok(())
+}
 
-    let auth_header = format!("AWS {S3_TEST_ACCESS_KEY_ID}:{signature}");
+async fn s3_bucket_request(method: &str, bucket: &str) -> IcebergResult<()> {
     let url = format!("{S3_TEST_ENDPOINT}/{bucket}");
+    let credentials = Credentials::new(
+        S3_TEST_ACCESS_KEY_ID,
+        S3_TEST_SECRET_ACCESS_KEY,
+        None,
+        None,
+        "moonlink-test",
+    );
+    let identity = credentials.into();
+    let params = SigningParams::builder()
+        .identity(&identity)
+        .region(S3_TEST_REGION)
+        .name("s3")
+        .time(SystemTime::now())
+        .settings(SigningSettings::default())
+        .build()
+        .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?;
+    let signable = SignableRequest::new(method, &url, std::iter::empty(), SignableBody::Bytes(&[]))
+        .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?;
+    let (instructions, _) = sign(signable, &params.into())
+        .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?
+        .into_parts();
     let client = reqwest::Client::new();
-
-    client
-        .delete(&url)
-        .header("Authorization", auth_header)
-        .header("Date", date)
-        .send()
+    let mut request = client
+        .request(
+            reqwest::Method::from_bytes(method.as_bytes()).unwrap(),
+            &url,
+        )
+        .build()
+        .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?;
+    instructions.apply_to_request_http1x(&mut request);
+    let response = client
+        .execute(request)
         .await
-        .map_err(|e| {
-            IcebergError::new(
-                iceberg::ErrorKind::Unexpected,
-                format!("Failed to delete bucket {bucket} in minio: {e}"),
-            )
-        })?;
-
+        .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?;
+    if !response.status().is_success() {
+        return Err(IcebergError::new(
+            iceberg::ErrorKind::Unexpected,
+            format!(
+                "S3 {method} bucket request failed with status {}",
+                response.status()
+            ),
+        ));
+    }
     Ok(())
 }
 
