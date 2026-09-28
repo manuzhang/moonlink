@@ -16,6 +16,8 @@ test-utils = []
 
 storage-fs = ["opendal/services-fs", "iceberg-storage-opendal/opendal-fs"]
 storage-s3 = [
+    "dep:aws-credential-types",
+    "dep:aws-sigv4",
     "opendal/services-s3",
     "iceberg-storage-opendal/opendal-s3",
     "deltalake/s3",
@@ -52,6 +54,8 @@ arrow-schema = { workspace = true }
 arrow-schema-58 = { workspace = true }
 async-stream = { workspace = true }
 async-trait = { workspace = true }
+aws-credential-types = { workspace = true, optional = true }
+aws-sigv4 = { workspace = true, optional = true }
 backon = { workspace = true }
 base64 = { version = "0.23", optional = true }
 bincode = { workspace = true }
