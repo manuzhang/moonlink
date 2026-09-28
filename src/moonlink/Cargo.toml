@@ -48,14 +48,14 @@ profile-test = ["pprof", "function_name"]
 [dependencies]
 ahash = "0.8"
 anyhow = { workspace = true }
-aws-credential-types = { workspace = true, optional = true }
-aws-sigv4 = { workspace = true, optional = true }
 arrow = { workspace = true }
 arrow-array = { workspace = true }
 arrow-schema = { workspace = true }
 arrow-schema-58 = { workspace = true }
 async-stream = { workspace = true }
 async-trait = { workspace = true }
+aws-credential-types = { workspace = true, optional = true }
+aws-sigv4 = { workspace = true, optional = true }
 backon = { workspace = true }
 base64 = { version = "0.23", optional = true }
 bincode = { workspace = true }
