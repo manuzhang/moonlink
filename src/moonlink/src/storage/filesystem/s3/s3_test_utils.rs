@@ -95,14 +95,16 @@ async fn s3_bucket_request(method: &str, bucket: &str) -> IcebergResult<()> {
         .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?
         .into_parts();
     let client = reqwest::Client::new();
-    let mut request = client
-        .request(
-            reqwest::Method::from_bytes(method.as_bytes()).unwrap(),
-            &url,
-        )
+    let mut request_builder = client.request(
+        reqwest::Method::from_bytes(method.as_bytes()).unwrap(),
+        &url,
+    );
+    for (name, value) in instructions.headers() {
+        request_builder = request_builder.header(name, value);
+    }
+    let request = request_builder
         .build()
         .map_err(|e| IcebergError::new(iceberg::ErrorKind::Unexpected, e.to_string()))?;
-    instructions.apply_to_request_http1x(&mut request);
     let response = client
         .execute(request)
         .await
