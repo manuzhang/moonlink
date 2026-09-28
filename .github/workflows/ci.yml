@@ -163,11 +163,12 @@ jobs:
         timeout-minutes: 2
         run: |
           docker run -d \
-            --name minio \
+            --name rustfs \
             -p 9000:9000 \
-            -e MINIO_ROOT_USER=minioadmin \
-            -e MINIO_ROOT_PASSWORD=minioadmin \
-            quay.io/minio/minio:latest server /data
+            -e RUSTFS_ACCESS_KEY=minioadmin \
+            -e RUSTFS_SECRET_KEY=minioadmin \
+            -e RUSTFS_VOLUMES=/data \
+            docker.io/rustfs/rustfs:latest
 
       # ─────────────── Add hostnames to /etc/hosts ──────────────────────────
       - name: Add s3.local to /etc/hosts
@@ -180,7 +181,7 @@ jobs:
         run: |
           set -euo pipefail
           for i in {1..10}; do
-            if curl -sf http://s3.local:9000/minio/health/ready; then
+            if curl -sf http://s3.local:9000/health/ready; then
               echo "Fake S3 is ready!"
               exit 0
             fi
@@ -246,11 +247,12 @@ jobs:
         timeout-minutes: 2
         run: |
           docker run -d \
-            --name minio \
+            --name rustfs \
             -p 9000:9000 \
-            -e MINIO_ROOT_USER=minioadmin \
-            -e MINIO_ROOT_PASSWORD=minioadmin \
-            quay.io/minio/minio:latest server /data
+            -e RUSTFS_ACCESS_KEY=minioadmin \
+            -e RUSTFS_SECRET_KEY=minioadmin \
+            -e RUSTFS_VOLUMES=/data \
+            docker.io/rustfs/rustfs:latest
 
       # ─────────────── Add hostnames to /etc/hosts ──────────────────────────
       - name: Add s3.local to /etc/hosts
@@ -263,7 +265,7 @@ jobs:
         run: |
           set -euo pipefail
           for i in {1..10}; do
-            if curl -sf http://s3.local:9000/minio/health/ready; then
+            if curl -sf http://s3.local:9000/health/ready; then
               echo "Fake S3 is ready!"
               exit 0
             fi
