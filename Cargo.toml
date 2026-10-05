@@ -43,7 +43,6 @@ const_format = "0.2"
 crc32fast = "1"
 datafusion = "54"
 datafusion-cli = "54"
-deltalake = { version = "0.32", features = ["deltalake-aws", "deltalake-gcp"] }
 fastbloom = "0.16"
 futures = { version = "0.3", default-features = false }
 hashbrown = "0.17"
