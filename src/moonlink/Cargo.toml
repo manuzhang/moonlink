@@ -20,7 +20,6 @@ storage-s3 = [
     "dep:aws-sigv4",
     "opendal/services-s3",
     "iceberg-storage-opendal/opendal-s3",
-    "deltalake/s3",
     "base64",
     "hmac",
     "sha1",
@@ -63,7 +62,6 @@ bitstream-io = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true }
 crc32fast = { workspace = true }
-deltalake = { workspace = true }
 fastbloom = { workspace = true }
 function_name = { version = "0.3", optional = true }
 futures = { workspace = true }
