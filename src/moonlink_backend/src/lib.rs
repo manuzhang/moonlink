@@ -291,7 +291,7 @@ impl MoonlinkBackend {
     /// TODO(hjiang): Currently it only supports local parquet files.
     pub async fn get_parquet_metadatas(&self, data_files: Vec<String>) -> Result<Vec<Vec<u8>>> {
         let http_filepath_remap = self.http_filepath_remap.clone();
-        let serialized_metadatas: Vec<Vec<u8>> = stream::iter(data_files.into_iter())
+        let serialized_metadatas: Vec<Vec<u8>> = stream::iter(data_files)
             .map(move |cur_data_file| {
                 let http_filepath_remap_clone = http_filepath_remap.clone();
                 async move {

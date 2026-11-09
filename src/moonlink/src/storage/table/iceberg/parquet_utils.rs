@@ -22,7 +22,7 @@ use iceberg::io::FileIO;
 use iceberg::spec::{
     visit_schema, DataContentType, DataFile, DataFileBuilder, DataFileFormat, ListType, MapType,
     NestedFieldRef, PrimitiveType, Schema, SchemaRef, SchemaVisitor, Struct, StructType,
-    TableMetadata,
+    TableMetadata, VariantType,
 };
 use iceberg::Result as IcebergResult;
 use iceberg::{Error as IcebergError, ErrorKind};
@@ -159,6 +159,13 @@ impl SchemaVisitor for IndexByParquetPathName {
         }
 
         Ok(())
+    }
+
+    fn variant(&mut self, _v: &VariantType) -> IcebergResult<Self::T> {
+        Err(IcebergError::new(
+            ErrorKind::FeatureUnsupported,
+            "Variant columns are not supported",
+        ))
     }
 }
 
@@ -300,6 +307,20 @@ mod tests {
     use arrow_array::{Int32Array, Int64Array};
     use parquet::{arrow::AsyncArrowWriter, file::properties::WriterProperties};
     use tempfile::tempdir;
+
+    #[test]
+    fn test_variant_schema_is_rejected() {
+        let schema = Schema::builder()
+            .with_fields(vec![Arc::new(iceberg::spec::NestedField::optional(
+                1,
+                "variant",
+                iceberg::spec::Type::Variant(VariantType),
+            ))])
+            .build()
+            .unwrap();
+        let error = visit_schema(&schema, &mut IndexByParquetPathName::new()).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::FeatureUnsupported);
+    }
 
     #[tokio::test]
     async fn test_get_data_file_from_parquet() {

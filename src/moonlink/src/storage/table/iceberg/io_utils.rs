@@ -135,7 +135,7 @@ pub(crate) fn create_file_io(accessor_config: &AccessorConfig) -> IcebergResult<
             if *disable_auth {
                 let file_io_builder = FileIOBuilder::new(Arc::new(OpenDalStorageFactory::Gcs))
                     .with_prop(iceberg::io::GCS_PROJECT_ID, project)
-                    .with_prop(iceberg::io::GCS_SERVICE_PATH, endpoint.as_ref().unwrap())
+                    .with_prop(iceberg::io::GCS_SERVICE_HOST, endpoint.as_ref().unwrap())
                     .with_prop(iceberg::io::GCS_NO_AUTH, "true")
                     .with_prop(iceberg::io::GCS_ALLOW_ANONYMOUS, "true")
                     .with_prop(iceberg::io::GCS_DISABLE_CONFIG_LOAD, "true")
