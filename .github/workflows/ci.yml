@@ -35,13 +35,12 @@ jobs:
         with:
           components: rustfmt,clippy
 
-      - uses: taiki-e/install-action@v2.87.28
+      - uses: taiki-e/install-action@v2.90.1
         with:
           tool: cargo-deny
 
-      - uses: taiki-e/install-action@v2.87.28
-        with:
-          tool: cargo-sort
+      - name: Install cargo-sort
+        run: cargo install cargo-sort --version 2.1.4 --locked
 
       - uses: swatinem/rust-cache@v2
         with:
@@ -431,9 +430,9 @@ jobs:
           mold-version: 2.40.3
           make-default: true
 
-      - uses: taiki-e/install-action@v2.87.28
+      - uses: taiki-e/install-action@v2.90.1
         with: { tool: cargo-llvm-cov }
-      - uses: taiki-e/install-action@v2.87.28
+      - uses: taiki-e/install-action@v2.90.1
         with: { tool: nextest }
 
       - name: Run tests via llvm-cov/nextest
