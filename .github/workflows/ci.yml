@@ -39,9 +39,8 @@ jobs:
         with:
           tool: cargo-deny
 
-      - uses: taiki-e/install-action@v2.90.1
-        with:
-          tool: cargo-sort
+      - name: Install cargo-sort
+        run: cargo install cargo-sort --version 2.1.4 --locked
 
       - uses: swatinem/rust-cache@v2
         with:
