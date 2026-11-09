@@ -351,7 +351,7 @@ pub async fn ids_from_state_with_deletes(read_state: &ReadState) -> HashSet<i64>
 
         // Load puffin file and read blob
         let input_file = file_io.new_input(puffin_file_path).unwrap();
-        let puffin_reader = PuffinReader::new(input_file);
+        let puffin_reader = PuffinReader::new(input_file).await.unwrap();
         let puffin_metadata = puffin_reader.file_metadata().await.unwrap();
 
         // Assume single blob per puffin file (as per moonlink convention)

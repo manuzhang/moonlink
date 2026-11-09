@@ -631,9 +631,18 @@ impl Catalog for FileCatalog {
         // Manifest files and manifest list has persisted into storage, make modifications based on puffin blobs.
         //
         // TODO(hjiang): Add unit test for update and check manifest population.
+        let table = Table::builder()
+            .identifier(commit.identifier().clone())
+            .file_io(self.file_io.clone())
+            .metadata(metadata)
+            .metadata_location(format!(
+                "{}/{}",
+                self.warehouse_location, new_metadata_filepath
+            ))
+            .runtime(iceberg::Runtime::try_current()?)
+            .build()?;
         append_puffin_metadata_and_rewrite(
-            &metadata,
-            &self.file_io,
+            &table,
             &self.table_update_proxy.deletion_vector_blobs_to_add,
             &self.table_update_proxy.file_index_blobs_to_add,
             &self.table_update_proxy.data_files_to_remove,
@@ -671,16 +680,7 @@ impl Catalog for FileCatalog {
             *guard.borrow_mut() = object_metadata.etag().map(|etag| etag.to_string());
         }
 
-        Table::builder()
-            .identifier(commit.identifier().clone())
-            .file_io(self.file_io.clone())
-            .metadata(metadata)
-            .metadata_location(format!(
-                "{}/{}",
-                self.warehouse_location, new_metadata_filepath
-            ))
-            .runtime(iceberg::Runtime::try_current()?)
-            .build()
+        Ok(table)
     }
 
     async fn register_table(

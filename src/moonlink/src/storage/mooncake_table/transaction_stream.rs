@@ -742,11 +742,9 @@ impl SnapshotTableState {
                             self.current_snapshot.indices.insert_file_index(file_index);
                         });
                     // add local deletions
-                    self.committed_deletion_log
-                        .extend(commit.local_deletions.into_iter());
+                    self.committed_deletion_log.extend(commit.local_deletions);
                     // add pending deletions
-                    task.new_deletions
-                        .extend(commit.pending_deletions.into_iter());
+                    task.new_deletions.extend(commit.pending_deletions);
                     // set lsn for pending deletions
                     self.uncommitted_deletion_log.iter_mut().for_each(|row| {
                         if let Some(deletion) = row {

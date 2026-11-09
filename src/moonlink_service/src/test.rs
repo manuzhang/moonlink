@@ -1414,7 +1414,7 @@ async fn stress_test_kafka_stress_10min_long_running() {
     }
 
     // Wait for all workers to complete
-    let mut total_sent = 0;
+    let mut total_sent: usize = 0;
     for handle in handles {
         total_sent += handle.await.unwrap();
     }
@@ -1477,11 +1477,7 @@ async fn stress_test_kafka_stress_10min_long_running() {
 
     // Log success with file efficiency
     let total_files = parquet_count + metadata_count + snapshot_count + manifest_count;
-    let records_per_file = if total_files > 0 {
-        total_sent / total_files
-    } else {
-        0
-    };
+    let records_per_file = total_sent.checked_div(total_files).unwrap_or(0);
 
     println!("📈 File efficiency:");
     println!("  - Total files: {total_files}");
@@ -1491,11 +1487,8 @@ async fn stress_test_kafka_stress_10min_long_running() {
         total_files as f64 / (elapsed.as_secs_f64() / 60.0)
     );
 
-    if parquet_count > 0 {
-        println!(
-            "  - Records per parquet file: {}",
-            total_sent / parquet_count
-        );
+    if let Some(records_per_parquet_file) = total_sent.checked_div(parquet_count) {
+        println!("  - Records per parquet file: {records_per_parquet_file}");
     }
 
     println!("✅ Kafka stress test completed successfully with reasonable file counts");
