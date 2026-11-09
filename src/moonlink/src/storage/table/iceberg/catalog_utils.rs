@@ -207,9 +207,14 @@ pub(crate) async fn update_table_impl(
     let build_result = builder.build()?;
 
     // Rewrite manifest list/entries to append puffin metadata and handle removals before commit
+    let updated_table = Table::builder()
+        .identifier(commit.identifier().clone())
+        .file_io(file_io.clone())
+        .metadata(build_result.metadata)
+        .runtime(iceberg::Runtime::try_current()?)
+        .build()?;
     append_puffin_metadata_and_rewrite(
-        &build_result.metadata,
-        file_io,
+        &updated_table,
         &table_update_proxy.deletion_vector_blobs_to_add,
         &table_update_proxy.file_index_blobs_to_add,
         &table_update_proxy.data_files_to_remove,

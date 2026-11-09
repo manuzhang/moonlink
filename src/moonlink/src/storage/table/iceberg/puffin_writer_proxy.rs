@@ -23,6 +23,7 @@ use crate::storage::table::iceberg::file_index_manifest_manager::FileIndexManife
 use iceberg::io::FileIO;
 use iceberg::puffin::{BlobMetadata, CompressionCodec, PuffinReader, PuffinWriter};
 use iceberg::spec::{FormatVersion, ManifestList, ManifestListWriter, Snapshot, TableMetadata};
+use iceberg::table::Table;
 use iceberg::Result as IcebergResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -60,7 +61,7 @@ pub(crate) async fn get_puffin_metadata_and_close(
     puffin_filepath: &str,
 ) -> IcebergResult<Vec<PuffinBlobMetadataProxy>> {
     puffin_writer.close().await?;
-    let puffin_reader = PuffinReader::new(file_io.new_input(puffin_filepath)?);
+    let puffin_reader = PuffinReader::new(file_io.new_input(puffin_filepath)?).await?;
     Ok(puffin_reader
         .file_metadata()
         .await?
@@ -118,8 +119,7 @@ async fn create_new_manifest_list_writer(
 /// 1. There're too many sequential IO operations to rewrite deletion vectors, need to optimize.
 /// 2. Could optimize to avoid file indices manifest file to rewrite.
 pub(crate) async fn append_puffin_metadata_and_rewrite(
-    table_metadata: &TableMetadata,
-    file_io: &FileIO,
+    table: &Table,
     deletion_vector_blobs_to_add: &HashMap<String, Vec<PuffinBlobMetadataProxy>>,
     file_index_blobs_to_add: &HashMap<String, Vec<PuffinBlobMetadataProxy>>,
     data_files_to_remove: &HashSet<String>,
@@ -133,6 +133,8 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
         return Ok(());
     }
 
+    let table_metadata = table.metadata();
+    let file_io = table.file_io();
     let cur_snapshot = table_metadata.current_snapshot().unwrap();
     let manifest_list_content = file_io
         .new_input(cur_snapshot.manifest_list())?
@@ -163,7 +165,7 @@ pub(crate) async fn append_puffin_metadata_and_rewrite(
     // - Deletion vector: [`deletion_vector_blobs_to_add`] is non empty, or [`data_files_to_remove`] is non empty.
     // - File index: [`file_index_blobs_to_add`] is non empty, or [`index_puffin_blobs_to_remove`] is non empty.
     for cur_manifest_file in manifest_list.entries() {
-        let manifest = cur_manifest_file.load_manifest(file_io).await?;
+        let manifest = table.manifest_reader().read(cur_manifest_file).await?;
         let (manifest_entries, manifest_metadata) = manifest.into_parts();
 
         // Assumption: we store all data file manifest entries in one manifest file.

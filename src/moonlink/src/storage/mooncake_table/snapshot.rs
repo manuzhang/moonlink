@@ -695,10 +695,7 @@ impl SnapshotTableState {
 
         // Add completed batches
         // Assert that no incoming batch ID is already present in the map.
-        for batch in streaming_batches
-            .into_iter()
-            .chain(non_streaming_batches.into_iter())
-        {
+        for batch in streaming_batches.into_iter().chain(non_streaming_batches) {
             let deletions = match batch.deletion_vector {
                 Some(dv) => dv, // Use the deletion vector from streaming transaction
                 None => BatchDeletionVector::new(batch.record_batch.num_rows()), // Create fresh deletion vector for non-streaming

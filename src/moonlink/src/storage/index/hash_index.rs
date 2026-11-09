@@ -72,7 +72,7 @@ impl MooncakeIndex {
                 );
             }
         }
-        res.extend(in_memory_res.into_iter());
+        res.extend(in_memory_res);
         if self.file_indices.is_empty() {
             return res;
         }

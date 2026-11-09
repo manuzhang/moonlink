@@ -47,7 +47,7 @@ pub(crate) async fn load_blob_from_puffin_file(
     file_path: &str,
 ) -> IcebergResult<Blob> {
     let input_file = file_io.new_input(file_path)?;
-    let puffin_reader = PuffinReader::new(input_file);
+    let puffin_reader = PuffinReader::new(input_file).await?;
     let puffin_file_metadata = puffin_reader.file_metadata().await?;
 
     // Moonlink places one deletion vector in each puffin file.
