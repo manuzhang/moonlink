@@ -308,19 +308,19 @@ version = "58.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "378530e55cd479eda3c14eb345310799717e6f76d0c332041e8487022166b471"
 dependencies = [
- "arrow-arith 58.3.0",
+ "arrow-arith 58.4.1",
  "arrow-array 58.4.1",
  "arrow-buffer 58.4.1",
- "arrow-cast 58.3.0",
+ "arrow-cast 58.4.1",
  "arrow-csv",
  "arrow-data 58.4.1",
  "arrow-ipc 58.4.1",
  "arrow-json",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.1",
  "arrow-row 58.3.0",
  "arrow-schema 58.4.1",
  "arrow-select 58.4.1",
- "arrow-string 58.3.0",
+ "arrow-string 58.4.1",
 ]
 
 [[package]]
@@ -343,9 +343,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-arith"
-version = "58.3.0"
+version = "58.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0ab212d2c1886e802f51c5212d78ebbcbb0bec980fff9dadc1eb8d45cd0b738"
+checksum = "8b13b85a6a547a1669114e418f6ab3c3e39c2edb1b8be5ab2889e5739a433ae9"
 dependencies = [
  "arrow-array 58.4.1",
  "arrow-buffer 58.4.1",
@@ -456,14 +456,14 @@ dependencies = [
 
 [[package]]
 name = "arrow-cast"
-version = "58.3.0"
+version = "58.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c5aefb56a2c02e9e2b30746241058b85f8983f0fcff2ba0c6d09006e1cded7f"
+checksum = "9575323ffeb4bc6955f39bf8716f734671a32780f1fac9ba6c2891048fc0ea1f"
 dependencies = [
  "arrow-array 58.4.1",
  "arrow-buffer 58.4.1",
  "arrow-data 58.4.1",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.1",
  "arrow-schema 58.4.1",
  "arrow-select 58.4.1",
  "atoi 2.0.0",
@@ -515,7 +515,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e94e8cf7e517657a52b91ea1263acf38c4ca62a84655d72458a3359b12ab97de"
 dependencies = [
  "arrow-array 58.4.1",
- "arrow-cast 58.3.0",
+ "arrow-cast 58.4.1",
  "arrow-schema 58.4.1",
  "chrono",
  "csv",
@@ -587,8 +587,8 @@ checksum = "205ca2119e6d679d5c133c6f30e68f027738d95ed948cf77677ea69c7800036b"
 dependencies = [
  "arrow-array 58.4.1",
  "arrow-buffer 58.4.1",
- "arrow-cast 58.3.0",
- "arrow-ord 58.3.0",
+ "arrow-cast 58.4.1",
+ "arrow-ord 58.4.1",
  "arrow-schema 58.4.1",
  "arrow-select 58.4.1",
  "chrono",
@@ -606,9 +606,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-ord"
-version = "58.3.0"
+version = "58.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bffd8fd2579286a5d63bac898159873e5094a79009940bcb42bbfce4f19f1d0"
+checksum = "908a1b5aeefce5c6eb2a0a4e98f4ccacbd441fe0ed23fb799e634cd0135821e5"
 dependencies = [
  "arrow-array 58.4.1",
  "arrow-buffer 58.4.1",
@@ -710,9 +710,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-string"
-version = "58.3.0"
+version = "58.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29dd7cda3ab9692f43a2e4acc444d760cc17b12bb6d8232ddf64e9bab7c06b42"
+checksum = "bd245a358d52e77bfcb99dc3e21f04b947383271b7a0b9ca8feec43e9039234d"
 dependencies = [
  "arrow-array 58.4.1",
  "arrow-buffer 58.4.1",
@@ -2736,7 +2736,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75f0bdfeef16d96417b9632ef855645376b242e9006a126dfd0bedfc54a93f5f"
 dependencies = [
  "arrow 58.3.0",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.1",
  "datafusion-common",
  "datafusion-doc",
  "datafusion-execution",
@@ -2910,7 +2910,7 @@ dependencies = [
  "arrow 58.3.0",
  "arrow-data 58.4.1",
  "arrow-ipc 58.4.1",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.1",
  "arrow-schema 58.4.1",
  "async-trait",
  "datafusion-common",
@@ -4037,14 +4037,14 @@ dependencies = [
  "anyhow",
  "apache-avro 0.21.0",
  "array-init",
- "arrow-arith 58.3.0",
+ "arrow-arith 58.4.1",
  "arrow-array 58.4.1",
  "arrow-buffer 58.4.1",
- "arrow-cast 58.3.0",
- "arrow-ord 58.3.0",
+ "arrow-cast 58.4.1",
+ "arrow-ord 58.4.1",
  "arrow-schema 58.4.1",
  "arrow-select 58.4.1",
- "arrow-string 58.3.0",
+ "arrow-string 58.4.1",
  "as-any",
  "async-trait",
  "backon",
@@ -4085,6 +4085,66 @@ dependencies = [
 ]
 
 [[package]]
+name = "iceberg"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25dd5d1aa2fa92d2c9bc426f72bc16717a27eb73255805beb8845afcca31e58d"
+dependencies = [
+ "aes-gcm",
+ "anyhow",
+ "apache-avro 0.21.0",
+ "array-init",
+ "arrow-arith 58.4.1",
+ "arrow-array 58.4.1",
+ "arrow-buffer 58.4.1",
+ "arrow-cast 58.4.1",
+ "arrow-ord 58.4.1",
+ "arrow-schema 58.4.1",
+ "arrow-select 58.4.1",
+ "arrow-string 58.4.1",
+ "as-any",
+ "async-trait",
+ "backon",
+ "base64 0.22.1",
+ "bimap",
+ "bytes",
+ "chrono",
+ "crc32fast",
+ "derive_builder",
+ "expect-test",
+ "fastnum",
+ "flate2",
+ "fnv",
+ "form_urlencoded",
+ "futures",
+ "iceberg-property-macro",
+ "itertools 0.13.0",
+ "moka",
+ "murmur3",
+ "once_cell",
+ "ordered-float 4.6.0",
+ "parquet 58.4.1",
+ "rand 0.9.4",
+ "reqwest 0.12.28",
+ "roaring",
+ "serde",
+ "serde_bytes",
+ "serde_derive",
+ "serde_json",
+ "serde_repr",
+ "serde_with",
+ "strum 0.27.2",
+ "tokio",
+ "tracing",
+ "typed-builder 0.20.1",
+ "typetag",
+ "url",
+ "uuid",
+ "zeroize",
+ "zstd 0.13.4",
+]
+
+[[package]]
 name = "iceberg-catalog-glue"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4094,8 +4154,8 @@ dependencies = [
  "async-trait",
  "aws-config",
  "aws-sdk-glue",
- "iceberg",
- "iceberg-storage-opendal",
+ "iceberg 0.10.1",
+ "iceberg-storage-opendal 0.10.1",
  "serde_json",
  "tokio",
 ]
@@ -4109,7 +4169,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "http 1.5.0",
- "iceberg",
+ "iceberg 0.10.1",
  "itertools 0.13.0",
  "reqwest 0.12.28",
  "serde",
@@ -4118,6 +4178,17 @@ dependencies = [
  "tokio",
  "typed-builder 0.20.1",
  "uuid",
+]
+
+[[package]]
+name = "iceberg-property-macro"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6de7eea6577fed2290867f7604483e3649297514b873cdac108e0cc7f783c9e1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -4131,8 +4202,28 @@ dependencies = [
  "bytes",
  "cfg-if",
  "futures",
- "iceberg",
+ "iceberg 0.10.1",
  "opendal 0.57.0",
+ "reqsign-aws-v4",
+ "reqsign-core",
+ "serde",
+ "typetag",
+ "url",
+]
+
+[[package]]
+name = "iceberg-storage-opendal"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08691d92b8e3ce0d827fa3d6e858b6d5fd948fb337bc57c244eb7d6bed1cddbc"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "cfg-if",
+ "futures",
+ "iceberg 0.11.0",
+ "opendal 0.58.1",
  "reqsign-aws-v4",
  "reqsign-core",
  "serde",
@@ -4919,10 +5010,10 @@ dependencies = [
  "futures",
  "hashbrown 0.17.1",
  "hmac 0.13.0",
- "iceberg",
+ "iceberg 0.10.1",
  "iceberg-catalog-glue",
  "iceberg-catalog-rest",
- "iceberg-storage-opendal",
+ "iceberg-storage-opendal 0.11.0",
  "itertools 0.15.0",
  "lru",
  "memmap2",
@@ -4972,7 +5063,7 @@ dependencies = [
  "arrow-schema 60.0.0",
  "bytes",
  "futures",
- "iceberg",
+ "iceberg 0.10.1",
  "moonlink",
  "moonlink_connectors",
  "moonlink_error",
@@ -5015,7 +5106,7 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "futures",
- "iceberg",
+ "iceberg 0.10.1",
  "moonlink",
  "moonlink_error",
  "moonlink_proto",
@@ -5529,12 +5620,11 @@ checksum = "96c9c85ce253ff87225e7669979d877a20c98a06604ec9d6dd5f4473e08f1ae1"
 dependencies = [
  "ctor",
  "opendal-core 0.57.0",
- "opendal-layer-concurrent-limit",
- "opendal-layer-logging",
+ "opendal-layer-concurrent-limit 0.57.0",
+ "opendal-layer-logging 0.57.0",
  "opendal-layer-retry 0.57.0",
  "opendal-layer-timeout 0.57.0",
  "opendal-service-fs 0.57.0",
- "opendal-service-gcs 0.57.0",
  "opendal-service-s3 0.57.0",
 ]
 
@@ -5544,13 +5634,16 @@ version = "0.58.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f20562cc7447fcc915fc5c23df305a412ea80a733c9f2fd9e2d267e2815be6d"
 dependencies = [
+ "ctor",
  "opendal-core 0.58.1",
  "opendal-http-transport-reqwest",
+ "opendal-layer-concurrent-limit 0.58.1",
+ "opendal-layer-logging 0.58.1",
  "opendal-layer-retry 0.58.1",
  "opendal-layer-throttle",
  "opendal-layer-timeout 0.58.1",
  "opendal-service-fs 0.58.1",
- "opendal-service-gcs 0.58.1",
+ "opendal-service-gcs",
  "opendal-service-s3 0.58.1",
 ]
 
@@ -5635,6 +5728,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "opendal-layer-concurrent-limit"
+version = "0.58.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "249ac5b0aa5a7a6c3737342d10456067937f9c9a6f3f02544271f7908ab91081"
+dependencies = [
+ "futures",
+ "http 1.5.0",
+ "mea",
+ "opendal-core 0.58.1",
+]
+
+[[package]]
 name = "opendal-layer-logging"
 version = "0.57.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5642,6 +5747,16 @@ checksum = "58ada45c6d81d1aa4c9305d0c7d4bc317c59c85866a0908a2d75a7a978aa5ee2"
 dependencies = [
  "log",
  "opendal-core 0.57.0",
+]
+
+[[package]]
+name = "opendal-layer-logging"
+version = "0.58.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c75411ab00f77851ff086b686c1e9ca8175ac18c15afa2cb75b9036436cb06c"
+dependencies = [
+ "log",
+ "opendal-core 0.58.1",
 ]
 
 [[package]]
@@ -5722,27 +5837,6 @@ dependencies = [
  "serde",
  "tokio",
  "xattr",
-]
-
-[[package]]
-name = "opendal-service-gcs"
-version = "0.57.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48de101aac565ed06af4b47903c24eafd249075553ec1fb18256751c45148d47"
-dependencies = [
- "async-trait",
- "bytes",
- "http 1.5.0",
- "log",
- "opendal-core 0.57.0",
- "percent-encoding",
- "quick-xml 0.39.4",
- "reqsign-core",
- "reqsign-file-read-tokio",
- "reqsign-google",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]
@@ -6546,8 +6640,8 @@ version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac6c3320f9abac597dcbc668774ef006702672474aad53c6d596b62e487b40b1"
 dependencies = [
- "heck 0.4.1",
- "itertools 0.13.0",
+ "heck 0.5.0",
+ "itertools 0.14.0",
  "log",
  "multimap",
  "once_cell",
@@ -6567,7 +6661,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9120690fafc389a67ba3803df527d0ec9cbbc9cc45e4cc20b332996dfb672425"
 dependencies = [
  "anyhow",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
