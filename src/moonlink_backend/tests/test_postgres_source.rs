@@ -955,7 +955,7 @@ mod tests {
         let table = format!("ic_parallel_fail_{suffix}");
         let fqtn = format!("public.{table}");
 
-        // Create and seed enough rows to ensure readers are active when we drop the table
+        // Create and seed enough rows to exercise parallel readers.
         let rows = 20_000i64;
         ddl.simple_query(&format!(
             "DROP TABLE IF EXISTS {fqtn};
@@ -993,31 +993,23 @@ mod tests {
         // TableEvent channel (we assert no LoadFiles on failure)
         let (tx, mut rx) = mpsc::channel::<TableEvent>(8);
 
-        // Start copy in a task; we expect it to fail after we drop the table
-        let schema_clone = schema.clone();
-        let tx_clone = tx.clone();
-        let base_path_string = base_path.to_string();
-        let copy_handle = tokio::spawn(async move {
-            copy_table_stream(schema_clone, &tx_clone, &base_path_string, ic_cfg).await
-        });
-
-        // Give readers a moment to start streaming
-        tokio::time::sleep(Duration::from_millis(200)).await;
-
-        // Induce failure: drop the source table while copy is in progress
-        ddl.simple_query(&format!("DROP TABLE IF EXISTS {fqtn};"))
+        // Keep the fetched schema stale so every COPY query fails in its reader.
+        // A timed table drop can race with a fast copy that has already finished.
+        ddl.simple_query(&format!("ALTER TABLE {fqtn} DROP COLUMN name;"))
             .await
             .unwrap();
 
         // The copy task should fail promptly (no hang)
-        let res = timeout(Duration::from_secs(10), copy_handle).await;
-        assert!(res.is_ok(), "copy task timed out (potential hang)");
-        let join_res = res.unwrap();
-        assert!(join_res.is_ok(), "copy task join failed");
-        let stream_res = join_res.unwrap();
+        let stream_res = timeout(
+            Duration::from_secs(10),
+            copy_table_stream(schema, &tx, base_path, ic_cfg),
+        )
+        .await
+        .expect("copy task timed out (potential hang)");
+        let error = stream_res.expect_err("expected copy_table_stream to return Err");
         assert!(
-            stream_res.is_err(),
-            "expected copy_table_stream to return Err"
+            error.to_string().contains("reader"),
+            "failure should originate in a COPY reader: {error}"
         );
 
         // Ensure no LoadFiles event was emitted
@@ -1027,7 +1019,9 @@ mod tests {
             "no LoadFiles event should be emitted on failure"
         );
 
-        // Cleanup: table already dropped; tempdir cleans up automatically
+        ddl.simple_query(&format!("DROP TABLE IF EXISTS {fqtn};"))
+            .await
+            .unwrap();
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
