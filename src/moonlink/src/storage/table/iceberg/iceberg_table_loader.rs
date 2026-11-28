@@ -273,7 +273,13 @@ impl IcebergTableManager {
 
         // Attempt to load data files first.
         for manifest_file in manifest_list.entries().iter() {
-            let manifest = manifest_file.load_manifest(&file_io).await?;
+            let manifest = self
+                .iceberg_table
+                .as_ref()
+                .unwrap()
+                .manifest_reader()
+                .read(manifest_file)
+                .await?;
             assert!(manifest_file_cache
                 .insert(manifest_file.manifest_path.clone(), manifest.clone())
                 .is_none());

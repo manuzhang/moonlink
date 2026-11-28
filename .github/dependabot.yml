@@ -37,6 +37,10 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
     groups:
+      iceberg:
+        applies-to: version-updates
+        patterns:
+          - "iceberg*"
       arrow-parquet:
         applies-to: version-updates
         patterns:

@@ -254,7 +254,7 @@ impl IcebergTableManager {
 
         // Import disk slice writer to iceberg table.
         let new_data_files_clone = new_data_files.clone();
-        let iceberg_data_files: Vec<DataFile> = stream::iter(new_data_files_clone.into_iter())
+        let iceberg_data_files: Vec<DataFile> = stream::iter(new_data_files_clone)
             .map(move |local_data_file| {
                 let iceberg_table = iceberg_table.clone();
                 let filesystem_accessor = filesystem_accessor.clone();
@@ -634,7 +634,7 @@ impl IcebergTableManager {
         let file_indices_to_import_clone = file_indices_to_import.to_vec();
 
         let file_index_import_results: Vec<SingleFileIndexImportResult> =
-            stream::iter(file_indices_to_import_clone.into_iter())
+            stream::iter(file_indices_to_import_clone)
                 .map(move |mooncake_file_index: MooncakeFileIndex| {
                     let iceberg_table = iceberg_table;
                     let puffin_filepath = get_unique_hash_index_v1_filepath(iceberg_table);

@@ -96,7 +96,7 @@ impl ReadOutput {
         resolved_data_files: &mut [String],
         cache_handles: &mut Vec<NonEvictableHandle>,
     ) -> Result<()> {
-        let results = stream::iter(remote_files_entries.into_iter())
+        let results = stream::iter(remote_files_entries)
             .map(|remote_file_entry| {
                 let cache = object_storage_cache.clone();
                 let fs_accessor = filesystem_accessor.clone();
