@@ -308,19 +308,19 @@ version = "58.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "378530e55cd479eda3c14eb345310799717e6f76d0c332041e8487022166b471"
 dependencies = [
- "arrow-arith 58.3.0",
+ "arrow-arith 58.4.2",
  "arrow-array 58.4.2",
  "arrow-buffer 58.4.2",
- "arrow-cast 58.3.0",
+ "arrow-cast 58.4.2",
  "arrow-csv",
  "arrow-data 58.4.2",
  "arrow-ipc 58.4.2",
  "arrow-json",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.2",
  "arrow-row 58.3.0",
  "arrow-schema 58.4.2",
  "arrow-select 58.4.2",
- "arrow-string 58.3.0",
+ "arrow-string 58.4.2",
 ]
 
 [[package]]
@@ -343,9 +343,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-arith"
-version = "58.3.0"
+version = "58.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0ab212d2c1886e802f51c5212d78ebbcbb0bec980fff9dadc1eb8d45cd0b738"
+checksum = "e2c805022d08328df96cc40415710a48e92cf5c078c1cf80ede41e3ca935b6a6"
 dependencies = [
  "arrow-array 58.4.2",
  "arrow-buffer 58.4.2",
@@ -456,14 +456,14 @@ dependencies = [
 
 [[package]]
 name = "arrow-cast"
-version = "58.3.0"
+version = "58.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c5aefb56a2c02e9e2b30746241058b85f8983f0fcff2ba0c6d09006e1cded7f"
+checksum = "18586c2c7c16b3509f567bd9af260bc34db24a304829e14bcdaf5e96785e40f2"
 dependencies = [
  "arrow-array 58.4.2",
  "arrow-buffer 58.4.2",
  "arrow-data 58.4.2",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.2",
  "arrow-schema 58.4.2",
  "arrow-select 58.4.2",
  "atoi 2.0.0",
@@ -515,7 +515,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e94e8cf7e517657a52b91ea1263acf38c4ca62a84655d72458a3359b12ab97de"
 dependencies = [
  "arrow-array 58.4.2",
- "arrow-cast 58.3.0",
+ "arrow-cast 58.4.2",
  "arrow-schema 58.4.2",
  "chrono",
  "csv",
@@ -587,8 +587,8 @@ checksum = "205ca2119e6d679d5c133c6f30e68f027738d95ed948cf77677ea69c7800036b"
 dependencies = [
  "arrow-array 58.4.2",
  "arrow-buffer 58.4.2",
- "arrow-cast 58.3.0",
- "arrow-ord 58.3.0",
+ "arrow-cast 58.4.2",
+ "arrow-ord 58.4.2",
  "arrow-schema 58.4.2",
  "arrow-select 58.4.2",
  "chrono",
@@ -606,9 +606,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-ord"
-version = "58.3.0"
+version = "58.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bffd8fd2579286a5d63bac898159873e5094a79009940bcb42bbfce4f19f1d0"
+checksum = "37e905754972947fe8579e6e8fe50f49d55e0782b7934a585dad5f4f4266ec3b"
 dependencies = [
  "arrow-array 58.4.2",
  "arrow-buffer 58.4.2",
@@ -710,9 +710,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-string"
-version = "58.3.0"
+version = "58.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29dd7cda3ab9692f43a2e4acc444d760cc17b12bb6d8232ddf64e9bab7c06b42"
+checksum = "75e17965a914268a0466f92fd2dd313684b3ab30e1bdd0b2d8292f8aeb112456"
 dependencies = [
  "arrow-array 58.4.2",
  "arrow-buffer 58.4.2",
@@ -813,6 +813,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
+]
+
+[[package]]
+name = "asyncband"
+version = "0.6.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94a214ba60d6231afd0e805e3c27c45a1626d9debaa5a5061c45a1ea1b2f1ed0"
+dependencies = [
+ "hashbrown 0.17.1",
+ "slab",
 ]
 
 [[package]]
@@ -2742,7 +2752,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75f0bdfeef16d96417b9632ef855645376b242e9006a126dfd0bedfc54a93f5f"
 dependencies = [
  "arrow 58.3.0",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.2",
  "datafusion-common",
  "datafusion-doc",
  "datafusion-execution",
@@ -2916,7 +2926,7 @@ dependencies = [
  "arrow 58.3.0",
  "arrow-data 58.4.2",
  "arrow-ipc 58.4.2",
- "arrow-ord 58.3.0",
+ "arrow-ord 58.4.2",
  "arrow-schema 58.4.2",
  "async-trait",
  "datafusion-common",
@@ -4043,14 +4053,14 @@ dependencies = [
  "anyhow",
  "apache-avro 0.21.0",
  "array-init",
- "arrow-arith 58.3.0",
+ "arrow-arith 58.4.2",
  "arrow-array 58.4.2",
  "arrow-buffer 58.4.2",
- "arrow-cast 58.3.0",
- "arrow-ord 58.3.0",
+ "arrow-cast 58.4.2",
+ "arrow-ord 58.4.2",
  "arrow-schema 58.4.2",
  "arrow-select 58.4.2",
- "arrow-string 58.3.0",
+ "arrow-string 58.4.2",
  "as-any",
  "async-trait",
  "backon",
@@ -4091,17 +4101,77 @@ dependencies = [
 ]
 
 [[package]]
-name = "iceberg-catalog-glue"
-version = "0.10.1"
+name = "iceberg"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b790f90bd24604cc7b6e88c96d1ac81082ef2790f526735f183419fdff5ee03"
+checksum = "25dd5d1aa2fa92d2c9bc426f72bc16717a27eb73255805beb8845afcca31e58d"
+dependencies = [
+ "aes-gcm",
+ "anyhow",
+ "apache-avro 0.21.0",
+ "array-init",
+ "arrow-arith 58.4.2",
+ "arrow-array 58.4.2",
+ "arrow-buffer 58.4.2",
+ "arrow-cast 58.4.2",
+ "arrow-ord 58.4.2",
+ "arrow-schema 58.4.2",
+ "arrow-select 58.4.2",
+ "arrow-string 58.4.2",
+ "as-any",
+ "async-trait",
+ "backon",
+ "base64 0.22.1",
+ "bimap",
+ "bytes",
+ "chrono",
+ "crc32fast",
+ "derive_builder",
+ "expect-test",
+ "fastnum",
+ "flate2",
+ "fnv",
+ "form_urlencoded",
+ "futures",
+ "iceberg-property-macro",
+ "itertools 0.13.0",
+ "moka",
+ "murmur3",
+ "once_cell",
+ "ordered-float 4.6.0",
+ "parquet 58.4.2",
+ "rand 0.9.4",
+ "reqwest 0.12.28",
+ "roaring",
+ "serde",
+ "serde_bytes",
+ "serde_derive",
+ "serde_json",
+ "serde_repr",
+ "serde_with",
+ "strum 0.27.2",
+ "tokio",
+ "tracing",
+ "typed-builder 0.20.1",
+ "typetag",
+ "url",
+ "uuid",
+ "zeroize",
+ "zstd 0.13.4",
+]
+
+[[package]]
+name = "iceberg-catalog-glue"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b79291c2d1156b92b6c262269400f168ebdc4da932fe21f0b7979e537db5c49a"
 dependencies = [
  "anyhow",
  "async-trait",
  "aws-config",
  "aws-sdk-glue",
- "iceberg",
- "iceberg-storage-opendal",
+ "iceberg 0.11.0",
+ "iceberg-storage-opendal 0.11.0",
  "serde_json",
  "tokio",
 ]
@@ -4115,7 +4185,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "http 1.5.0",
- "iceberg",
+ "iceberg 0.10.1",
  "itertools 0.13.0",
  "reqwest 0.12.28",
  "serde",
@@ -4124,6 +4194,17 @@ dependencies = [
  "tokio",
  "typed-builder 0.20.1",
  "uuid",
+]
+
+[[package]]
+name = "iceberg-property-macro"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6de7eea6577fed2290867f7604483e3649297514b873cdac108e0cc7f783c9e1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -4137,8 +4218,28 @@ dependencies = [
  "bytes",
  "cfg-if",
  "futures",
- "iceberg",
+ "iceberg 0.10.1",
  "opendal 0.57.0",
+ "reqsign-aws-v4",
+ "reqsign-core",
+ "serde",
+ "typetag",
+ "url",
+]
+
+[[package]]
+name = "iceberg-storage-opendal"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08691d92b8e3ce0d827fa3d6e858b6d5fd948fb337bc57c244eb7d6bed1cddbc"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "cfg-if",
+ "futures",
+ "iceberg 0.11.0",
+ "opendal 0.58.2",
  "reqsign-aws-v4",
  "reqsign-core",
  "serde",
@@ -4926,10 +5027,10 @@ dependencies = [
  "futures",
  "hashbrown 0.17.1",
  "hmac 0.13.0",
- "iceberg",
+ "iceberg 0.10.1",
  "iceberg-catalog-glue",
  "iceberg-catalog-rest",
- "iceberg-storage-opendal",
+ "iceberg-storage-opendal 0.10.1",
  "itertools 0.15.0",
  "lru",
  "memmap2",
@@ -4979,7 +5080,7 @@ dependencies = [
  "arrow-schema 60.2.0",
  "bytes",
  "futures",
- "iceberg",
+ "iceberg 0.10.1",
  "moonlink",
  "moonlink_connectors",
  "moonlink_error",
@@ -5022,7 +5123,7 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "futures",
- "iceberg",
+ "iceberg 0.10.1",
  "moonlink",
  "moonlink_error",
  "moonlink_proto",
@@ -5554,8 +5655,8 @@ checksum = "96c9c85ce253ff87225e7669979d877a20c98a06604ec9d6dd5f4473e08f1ae1"
 dependencies = [
  "ctor",
  "opendal-core 0.57.0",
- "opendal-layer-concurrent-limit",
- "opendal-layer-logging",
+ "opendal-layer-concurrent-limit 0.57.0",
+ "opendal-layer-logging 0.57.0",
  "opendal-layer-retry 0.57.0",
  "opendal-layer-timeout 0.57.0",
  "opendal-service-fs 0.57.0",
@@ -5565,12 +5666,29 @@ dependencies = [
 
 [[package]]
 name = "opendal"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33dbff14cc9bb085224256d6a81289d2f3202e85b06f408d42534b42162a4231"
+dependencies = [
+ "ctor",
+ "opendal-core 0.58.2",
+ "opendal-http-transport-reqwest 0.58.2",
+ "opendal-layer-concurrent-limit 0.58.2",
+ "opendal-layer-logging 0.58.2",
+ "opendal-layer-retry 0.58.2",
+ "opendal-layer-timeout 0.58.2",
+ "opendal-service-fs 0.58.2",
+ "opendal-service-s3 0.58.2",
+]
+
+[[package]]
+name = "opendal"
 version = "0.59.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9fe43e16d96bed57937eb7c4a28559bf4c5fc4a3951656505d1fdd4f856349b4"
 dependencies = [
  "opendal-core 0.59.2",
- "opendal-http-transport-reqwest",
+ "opendal-http-transport-reqwest 0.59.2",
  "opendal-layer-retry 0.59.2",
  "opendal-layer-throttle",
  "opendal-layer-timeout 0.59.2",
@@ -5609,12 +5727,12 @@ dependencies = [
 
 [[package]]
 name = "opendal-core"
-version = "0.59.2"
+version = "0.58.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de4566a412776e3f65d53dd9fceced5b432a0a9c9a1e8d50ccf58823795e5c5b"
+checksum = "48dbcef97d3eb7591db2c18d5cae95c836bcce07359b98d98dd6f4e861eb77b7"
 dependencies = [
  "anyhow",
- "asyncband",
+ "asyncband 0.6.7",
  "base64 0.23.0",
  "bytes",
  "futures",
@@ -5631,6 +5749,46 @@ dependencies = [
  "url",
  "uuid",
  "web-time",
+]
+
+[[package]]
+name = "opendal-core"
+version = "0.59.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de4566a412776e3f65d53dd9fceced5b432a0a9c9a1e8d50ccf58823795e5c5b"
+dependencies = [
+ "anyhow",
+ "asyncband 0.7.2",
+ "base64 0.23.0",
+ "bytes",
+ "futures",
+ "http 1.5.0",
+ "jiff",
+ "log",
+ "md-5 0.11.0",
+ "percent-encoding",
+ "quick-xml 0.41.0",
+ "reqsign-core",
+ "serde",
+ "serde_json",
+ "tokio",
+ "url",
+ "uuid",
+ "web-time",
+]
+
+[[package]]
+name = "opendal-http-transport-reqwest"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85663452ea32bbc17e8f79ab29788c846d116ec7de31451be9c787e462dcb36c"
+dependencies = [
+ "bytes",
+ "futures",
+ "http 1.5.0",
+ "http-body 1.0.1",
+ "opendal-core 0.58.2",
+ "reqwest 0.13.4",
 ]
 
 [[package]]
@@ -5660,6 +5818,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "opendal-layer-concurrent-limit"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03f9e144b5228d741c3763ade8711d9b72e5fb6d998e779f2d7a09da0b5a3eba"
+dependencies = [
+ "asyncband 0.6.7",
+ "futures",
+ "http 1.5.0",
+ "opendal-core 0.58.2",
+]
+
+[[package]]
 name = "opendal-layer-logging"
 version = "0.57.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5667,6 +5837,16 @@ checksum = "58ada45c6d81d1aa4c9305d0c7d4bc317c59c85866a0908a2d75a7a978aa5ee2"
 dependencies = [
  "log",
  "opendal-core 0.57.0",
+]
+
+[[package]]
+name = "opendal-layer-logging"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2de17c61cd32e9d8d7d8efb91795e714dbccbafbc3c4e219e1542f4d6324161"
+dependencies = [
+ "log",
+ "opendal-core 0.58.2",
 ]
 
 [[package]]
@@ -5678,6 +5858,17 @@ dependencies = [
  "backon",
  "log",
  "opendal-core 0.57.0",
+]
+
+[[package]]
+name = "opendal-layer-retry"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e94db301964a25366090484d61e6da16d5979cc8faf02c3e12210dc74fafed38"
+dependencies = [
+ "backon",
+ "log",
+ "opendal-core 0.58.2",
 ]
 
 [[package]]
@@ -5713,6 +5904,16 @@ dependencies = [
 
 [[package]]
 name = "opendal-layer-timeout"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08956ddda07465449bfd48825f4f0f25e0351278ac974eaa659895d9d74f2c80"
+dependencies = [
+ "opendal-core 0.58.2",
+ "tokio",
+]
+
+[[package]]
+name = "opendal-layer-timeout"
 version = "0.59.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08ac6c77fe0d1b18e0064a02c19b98dbebcab78bf5e7753ad1f3abbc18850ff4"
@@ -5730,6 +5931,20 @@ dependencies = [
  "bytes",
  "log",
  "opendal-core 0.57.0",
+ "serde",
+ "tokio",
+ "xattr",
+]
+
+[[package]]
+name = "opendal-service-fs"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c7ef1e1c45f3f89282a59073897e0d685e51385fed0aea771714789525cff996"
+dependencies = [
+ "bytes",
+ "log",
+ "opendal-core 0.58.2",
  "serde",
  "tokio",
  "xattr",
@@ -5806,6 +6021,27 @@ dependencies = [
  "md-5 0.11.0",
  "opendal-core 0.57.0",
  "quick-xml 0.39.4",
+ "reqsign-aws-v4",
+ "reqsign-core",
+ "reqsign-file-read-tokio",
+ "serde",
+ "url",
+]
+
+[[package]]
+name = "opendal-service-s3"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c64335f9f24ccb62ac36f1d976342b48611a75ba61979813a4f78a4ebd94de42"
+dependencies = [
+ "base64 0.23.0",
+ "bytes",
+ "crc-fast",
+ "http 1.5.0",
+ "log",
+ "md-5 0.11.0",
+ "opendal-core 0.58.2",
+ "quick-xml 0.41.0",
  "reqsign-aws-v4",
  "reqsign-core",
  "reqsign-file-read-tokio",
@@ -6578,8 +6814,8 @@ version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac6c3320f9abac597dcbc668774ef006702672474aad53c6d596b62e487b40b1"
 dependencies = [
- "heck 0.4.1",
- "itertools 0.13.0",
+ "heck 0.5.0",
+ "itertools 0.14.0",
  "log",
  "multimap",
  "once_cell",
@@ -6599,7 +6835,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9120690fafc389a67ba3803df527d0ec9cbbc9cc45e4cc20b332996dfb672425"
 dependencies = [
  "anyhow",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
