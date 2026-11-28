@@ -31,6 +31,9 @@ allow-git = [
 # TODO(hjiang): Cleanup these unmaintained crates.
 [advisories]
 ignore = [
+    "RUSTSEC-2026-0542", # humantime - unmaintained, used by object_store and console-subscriber
+    "RUSTSEC-2026-0543", # chrono - unmaintained, used by Moonlink, Arrow and DataFusion
+    "RUSTSEC-2026-0555", # chrono-tz - unmaintained, used by Arrow and DataFusion
     "RUSTSEC-2026-0441", # pin-utils - unmaintained, transitive via AWS Smithy and hyper
     "RUSTSEC-2023-0071", # rsa - marvin attack
     "RUSTSEC-2024-0436", # paste - unmaintained
